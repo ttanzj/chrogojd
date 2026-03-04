@@ -2,12 +2,14 @@ name: Docker Build & Push to GHCR
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    # 🔥 关键权限设置
     permissions:
       contents: read
       packages: write
