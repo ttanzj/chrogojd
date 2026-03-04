@@ -86,7 +86,7 @@ async function updateCache() {
   console.log('🚀 节点缓存更新完成');
 }
 
-// ==================== 处理函数（已优化去重） ====================
+// ==================== 处理函数（保持不变） ====================
 function processHysteria(data, set) {
   if (!data?.server) return;
   const [server, port] = data.server.split(':');
@@ -134,96 +134,4 @@ function processXray(data, set) {
   const port = vnext.port || 443;
   const network = stream.network || 'tcp';
   const security = stream.security || 'none';
-  const tls = security === 'tls' || security === 'reality';
-  const reality = security === 'reality';
-
-  let sni = '', fp = 'chrome', pbk = '', sid = '';
-  if (tls) {
-    const tlsSet = reality ? (stream.realitySettings || {}) : (stream.tlsSettings || {});
-    sni = tlsSet.serverName || server;
-    fp = tlsSet.fingerprint || 'chrome';
-    if (reality) { pbk = tlsSet.publicKey || ''; sid = tlsSet.shortId || ''; }
-  }
-
-  const proxy = {
-    type: ob.protocol,
-    server,
-    port: Number(port),
-    uuid: user.id || '',
-    network,
-    tls,
-    'skip-cert-verify': true,
-    'client-fingerprint': fp,
-    servername: sni,
-    udp: true
-  };
-
-  if (ob.protocol === 'vmess') {
-    proxy.alterId = 0;
-    proxy.cipher = 'auto';
-  } else {
-    proxy.encryption = user.encryption || 'none';
-  }
-  if (user.flow) proxy.flow = user.flow;
-
-  if (network === 'ws') {
-    const ws = stream.wsSettings || {};
-    proxy['ws-opts'] = {
-      path: ws.path || '/',
-      headers: { Host: ws.headers?.Host || sni || server }
-    };
-  }
-  if (network === 'grpc') {
-    const grpc = stream.grpcSettings || {};
-    proxy['grpc-opts'] = { 'grpc-service-name': grpc.serviceName || '' };
-  }
-  if (reality) {
-    proxy['reality-opts'] = { 'public-key': pbk, 'short-id': sid };
-  }
-
-  set.add(JSON.stringify(proxy));
-}
-
-function processSingbox(data, set) {
-  const ob = data.outbounds?.[0];
-  if (!ob || ob.type !== 'hysteria') return;
-  const tls = ob.tls || {};
-  const proxy = {
-    type: 'hysteria',
-    server: ob.server,
-    port: ob.server_port,
-    auth_str: ob.auth_str,
-    up: ob.up_mbps,
-    down: ob.down_mbps,
-    'fast-open': true,
-    protocol: 'udp',
-    sni: tls.server_name,
-    'skip-cert-verify': tls.insecure ?? true,
-    alpn: tls.alpn?.[0] ? [tls.alpn[0]] : ['h3']
-  };
-  set.add(JSON.stringify(proxy));
-}
-
-function processClash(data, set) {
-  const proxies = data.proxies || [];
-  for (const p of proxies) {
-    if (!p || typeof p !== 'object') continue;
-    const dedup = { ...p };
-    delete dedup.name;
-    set.add(JSON.stringify(dedup));
-  }
-}
-
-// ==================== 服务启动 ====================
-app.get('/', async (req, res) => {
-  if (cachedYaml.includes('初始化')) await updateCache();
-  res.setHeader('Content-Type', 'text/yaml; charset=utf-8');
-  res.setHeader('Content-Disposition', 'attachment; filename="clash_config.yaml"');
-  res.send(cachedYaml);
-});
-
-app.listen(3000, async () => {
-  console.log('🚀 chrogojd 服务已启动 - 端口 3000');
-  await updateCache();           // 启动时立即抓取
-  cron.schedule('0 0 * * *', updateCache); // 每天 00:00 UTC 更新一次
-});
+  const tls = security === 'tls
