@@ -44,5 +44,8 @@ https://raw.githubusercontent.com/你的用户名/chrogojd/main/clash-cache.yaml
 - 容器内部监听 **3000** 端口
 - 推荐 ClawCloud 端口映射为 8080 或 80
 - 第一次访问会立即抓取，之后使用缓存，速度极快
+- server.js可以输出yaml和base64格式，server.js-back是只yaml格式
+- subscriptions.json是整合新版和旧版chromego后的地址，subscriptions.json-是旧版地址，两版都未去除失效链接
+
 
 所有镜像地址：https://github.com/你的用户名?tab=packages
