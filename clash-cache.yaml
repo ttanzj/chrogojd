@@ -1,1 +1,246 @@
-
+port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+unified-delay: true
+global-client-fingerprint: chrome
+dns:
+  enable: true
+  listen: ':53'
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://1.0.0.1/dns-query
+    - tls://dns.google
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
+proxies:
+  - type: hysteria
+    server: '[2001'
+    port: null
+    auth_str: dongtaiwang.com
+    up: 11
+    down: 55
+    fast-open: true
+    protocol: udp
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    name: 节点1
+  - type: hysteria2
+    server: '[2001'
+    port: null
+    password: dongtaiwang.com
+    fast-open: true
+    sni: apple.com
+    skip-cert-verify: true
+    name: 节点2
+  - type: vless
+    server: 2001:bc8:32d7:302::13
+    port: 34324
+    uuid: 26c462ba-a90c-4814-9d7c-a629bc0bdb5c
+    network: tcp
+    tls: true
+    skip-cert-verify: true
+    client-fingerprint: chrome
+    servername: dash.cloudflare.com
+    udp: true
+    encryption: none
+    flow: xtls-rprx-vision
+    reality-opts:
+      public-key: pHn5CHa2P6-lNBIkTOI3zJQN19jfNFkXxGFuyefpP0M
+      short-id: ''
+    name: 节点3
+  - type: vmess
+    server: 104.21.238.35
+    port: 2086
+    uuid: ee420fda-efb7-48a8-9249-8987e36ebd9e
+    network: ws
+    tls: false
+    skip-cert-verify: true
+    client-fingerprint: chrome
+    servername: ''
+    udp: true
+    alterId: 0
+    cipher: auto
+    ws-opts:
+      path: github.com/Alvin9999
+      headers:
+        Host: ip29.9447609.xyz
+    name: 节点4
+  - type: vmess
+    server: 2001:bc8:32d7:302::10
+    port: 44579
+    uuid: 8e34e170-13ae-4892-9d20-05962acc9f84
+    network: ws
+    tls: false
+    skip-cert-verify: true
+    client-fingerprint: chrome
+    servername: ''
+    udp: true
+    alterId: 0
+    cipher: auto
+    ws-opts:
+      path: /
+      headers:
+        Host: 2001:bc8:32d7:302::10
+    name: 节点5
+  - type: vmess
+    server: 104.21.238.35
+    port: 2086
+    uuid: ee420fda-efb7-48a8-9249-8987e36ebd9e
+    network: ws
+    tls: false
+    skip-cert-verify: true
+    client-fingerprint: chrome
+    servername: ''
+    udp: true
+    alterId: 0
+    cipher: auto
+    ws-opts:
+      path: github.com/Alvin9999
+      headers:
+        Host: ip19.9447609.xyz
+    name: 节点6
+  - type: hysteria
+    server: 5.83.129.90
+    port: 54177
+    auth_str: dongtaiwang.com
+    up: 11
+    down: 55
+    fast-open: true
+    protocol: udp
+    sni: bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    name: 节点7
+  - type: hysteria
+    server: 45.150.65.154
+    port: 47119
+    auth_str: dongtaiwang.com
+    up: 11
+    down: 55
+    fast-open: true
+    protocol: udp
+    sni: bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    name: 节点8
+  - type: hysteria
+    server: 2001:bc8:32d7:17b::2
+    port: 11000
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: 11 Mbps
+    down: 55 Mbps
+    name: 节点9
+  - server: 2001:bc8:32d7:302::16
+    port: 34997
+    type: tuic
+    uuid: 8687b6e0-ef24-4cd2-bcd2-02d3732bf554
+    password: dongtaiwang.com
+    alpn:
+      - h3
+    sni: bing.com
+    skip-cert-verify: true
+    reduce-rtt: true
+    udp-relay-mode: native
+    congestion-controller: bbr
+    name: 节点10
+  - type: hysteria2
+    server: 2001:bc8:32d7:302::17
+    port: 20088
+    password: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: 11 Mbps
+    down: 55 Mbps
+    name: 节点11
+  - type: hysteria
+    server: 5.83.129.143
+    port: 26691
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: 11 Mbps
+    down: 55 Mbps
+    name: 节点12
+  - type: hysteria
+    server: 2a14:7584:d099::a
+    port: 26691
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: 11 Mbps
+    down: 55 Mbps
+    name: 节点13
+proxy-groups:
+  - name: 节点选择
+    type: select
+    proxies:
+      - 自动选择
+      - DIRECT
+      - 节点1
+      - 节点2
+      - 节点3
+      - 节点4
+      - 节点5
+      - 节点6
+      - 节点7
+      - 节点8
+      - 节点9
+      - 节点10
+      - 节点11
+      - 节点12
+      - 节点13
+  - name: 自动选择
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    proxies:
+      - 节点1
+      - 节点2
+      - 节点3
+      - 节点4
+      - 节点5
+      - 节点6
+      - 节点7
+      - 节点8
+      - 节点9
+      - 节点10
+      - 节点11
+      - 节点12
+      - 节点13
+rules:
+  - DOMAIN,clash.razord.top,DIRECT
+  - DOMAIN,yacd.haishan.me,DIRECT
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,节点选择
