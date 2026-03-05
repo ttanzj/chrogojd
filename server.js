@@ -3,15 +3,18 @@ const axios = require('axios');
 const yaml = require('js-yaml');
 const cron = require('node-cron');
 const fs = require('fs');
+const { Buffer } = require('buffer');
 
 const app = express();
 let cachedYaml = '# 正在初始化节点，请稍等...\n';
+let cachedBase64 = '';  // 新增：base64 订阅内容（编码前是明文链接列表）
 
 async function updateCache() {
   console.log('🔄 开始更新节点缓存...');
   const sites = JSON.parse(fs.readFileSync('./subscriptions.json', 'utf8'));
   const uniqueSet = new Set();
   let success = 0;
+  const base64Links = [];  // 收集可转换的分享链接
 
   for (const site of sites) {
     try {
@@ -25,19 +28,19 @@ async function updateCache() {
 
       switch (site.type) {
         case 'hysteria':
-          processHysteria(data, uniqueSet);
+          processHysteria(data, uniqueSet, base64Links);
           break;
         case 'hysteria2':
-          processHysteria2(data, uniqueSet);
+          processHysteria2(data, uniqueSet, base64Links);
           break;
         case 'xray':
-          processXray(data, uniqueSet);
+          processXray(data, uniqueSet, base64Links);
           break;
         case 'singbox':
-          processSingbox(data, uniqueSet);
+          processSingbox(data, uniqueSet, base64Links);
           break;
         case 'clash':
-          processClash(data, uniqueSet);
+          processClash(data, uniqueSet, base64Links);
           break;
       }
       success++;
@@ -48,7 +51,7 @@ async function updateCache() {
 
   console.log(`✅ 成功抓取 ${success}/${sites.length} 个来源，共 ${uniqueSet.size} 个唯一节点`);
 
-  // 构建 Clash 配置
+  // 构建 Clash 配置（原有部分）
   const proxyStrs = Array.from(uniqueSet);
   const proxyObjects = [];
   const proxyNames = [];
@@ -75,7 +78,7 @@ async function updateCache() {
       'fake-ip-range': '198.18.0.1/16',
       'default-nameserver': ['223.5.5.5', '8.8.8.8'],
       nameserver: ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query'],
-      fallback: ['https://1.0.0.1/dns-query', 'tls://dns.google'],
+      fallback: ['https://1.0.1.1/dns-query', 'tls://dns.google'],
       'fallback-filter': { geoip: true, 'geoip-code': 'CN', ipcidr: ['240.0.0.0/4'] }
     },
     proxies: proxyObjects,
@@ -93,27 +96,37 @@ async function updateCache() {
   };
 
   cachedYaml = yaml.dump(config, { lineWidth: -1, noRefs: true });
-  console.log('🚀 节点缓存更新完成');
+  console.log('🚀 Clash YAML 缓存更新完成');
 
-  // 自动上传到 GitHub
-  await uploadToGitHub(cachedYaml);
+  // 新增：生成 base64 订阅内容
+  if (base64Links.length > 0) {
+    const plainText = base64Links.join('\n');
+    cachedBase64 = Buffer.from(plainText).toString('base64');
+    console.log(`📦 生成 base64 订阅：${base64Links.length} 条链接`);
+  } else {
+    cachedBase64 = '';
+    console.log('⚠️ 没有可转换为 base64 的节点');
+  }
+
+  // 上传两个文件到 GitHub
+  await uploadToGitHub(cachedYaml, 'clash-cache.yaml', '🤖 自动更新 Clash YAML 缓存');
+  await uploadToGitHub(cachedBase64, 'base64.txt', '🤖 自动更新 Base64 订阅');
 }
 
-// ==================== GitHub 上传函数 ====================
-async function uploadToGitHub(content) {
+// ==================== GitHub 上传函数（稍作通用化） ====================
+async function uploadToGitHub(content, filePath, commitMessagePrefix) {
   const {
     GITHUB_TOKEN,
     GITHUB_REPO = 'ttanzj/chrogojd',
-    GITHUB_FILE_PATH = 'clash-cache.yaml',
     GITHUB_BRANCH = 'main'
   } = process.env;
 
   if (!GITHUB_TOKEN) {
-    console.log('⚠️ 未设置 GITHUB_TOKEN，跳过上传 GitHub');
+    console.log(`⚠️ 未设置 GITHUB_TOKEN，跳过上传 ${filePath}`);
     return;
   }
 
-  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
   const headers = { Authorization: `token ${GITHUB_TOKEN}` };
   const encodedContent = Buffer.from(content).toString('base64');
 
@@ -124,13 +137,13 @@ async function uploadToGitHub(content) {
       sha = getRes.data.sha;
     } catch (err) {
       if (err.response?.status !== 404) throw err;
-      console.log(`📁 文件 ${GITHUB_FILE_PATH} 不存在，将首次创建`);
+      console.log(`📁 文件 ${filePath} 不存在，将首次创建`);
     }
 
     await axios.put(
       url,
       {
-        message: `🤖 自动更新节点缓存 - ${new Date().toISOString()}`,
+        message: `${commitMessagePrefix} - ${new Date().toISOString()}`,
         content: encodedContent,
         sha: sha,
         branch: GITHUB_BRANCH
@@ -138,33 +151,52 @@ async function uploadToGitHub(content) {
       { headers }
     );
 
-    console.log(`✅ 节点缓存已成功上传到 GitHub → ${GITHUB_REPO}/${GITHUB_FILE_PATH}`);
+    console.log(`✅ 已上传到 GitHub → ${GITHUB_REPO}/${filePath}`);
   } catch (err) {
-    console.error('❌ 上传 GitHub 失败:', err.response?.data?.message || err.message);
+    console.error(`❌ 上传 ${filePath} 失败:`, err.response?.data?.message || err.message);
   }
 }
 
-// ==================== 完整处理函数 ====================
-function processHysteria(data, set) {
+// ==================== 处理函数（新增 base64Links 参数） ====================
+function processHysteria(data, set, base64Links) {
   if (!data?.server) return;
   const [server, port] = data.server.split(':');
   const proxy = {
     type: 'hysteria',
     server,
     port: Number(port),
-    auth_str: data.auth_str,
+    auth_str: data.auth_str || '',
     up: data.up_mbps,
     down: data.down_mbps,
     'fast-open': true,
     protocol: data.protocol || 'udp',
-    sni: data.server_name,
+    sni: data.server_name || '',
     'skip-cert-verify': true,
     alpn: data.alpn ? [data.alpn] : ['h3']
   };
   set.add(JSON.stringify(proxy));
+
+  // 生成 hysteria:// 分享链接（常见格式）
+  try {
+    const params = new URLSearchParams({
+      protocol: proxy.protocol,
+      auth: proxy.auth_str,
+      peer: proxy.sni,
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      upmbps: proxy.up || '',
+      downmbps: proxy.down || '',
+      alpn: proxy.alpn[0] || 'h3',
+      obfs: '', // 如有 obfs 可加
+      obfsParam: ''
+    });
+    const link = `hysteria://${server}:${port}?${params.toString()}#${proxy.sni || server}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('hysteria base64 链接生成失败:', e.message);
+  }
 }
 
-function processHysteria2(data, set) {
+function processHysteria2(data, set, base64Links) {
   if (!data?.server) return;
   const [server, port] = data.server.split(':');
   const tls = data.tls || {};
@@ -172,15 +204,28 @@ function processHysteria2(data, set) {
     type: 'hysteria2',
     server,
     port: Number(port),
-    password: data.auth || '',
+    password: data.auth || data.password || '',
     'fast-open': true,
     sni: tls.sni || '',
     'skip-cert-verify': tls.insecure ?? true
   };
   set.add(JSON.stringify(proxy));
+
+  // hysteria2:// 分享链接（password@sni）
+  try {
+    const authPart = proxy.password ? `${encodeURIComponent(proxy.password)}@` : '';
+    const params = new URLSearchParams({
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      sni: proxy.sni || ''
+    });
+    const link = `hysteria2://${authPart}${server}:${port}?${params.toString()}#${proxy.sni || server}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('hysteria2 base64 链接生成失败:', e.message);
+  }
 }
 
-function processXray(data, set) {
+function processXray(data, set, base64Links) {
   const ob = data.outbounds?.[0];
   if (!ob || !['vless', 'vmess'].includes(ob.protocol)) return;
 
@@ -243,9 +288,48 @@ function processXray(data, set) {
   }
 
   set.add(JSON.stringify(proxy));
+
+  // 尝试生成 vmess:// 或 vless:// base64 链接（标准 V2Ray 分享格式）
+  try {
+    let link;
+    if (proxy.type === 'vmess') {
+      const vmessObj = {
+        v: '2',
+        ps: sni || server,
+        add: server,
+        port: port,
+        id: proxy.uuid,
+        aid: proxy.alterId || 0,
+        net: network,
+        type: 'none',
+        host: proxy['ws-opts']?.headers?.Host || '',
+        path: proxy['ws-opts']?.path || '',
+        tls: proxy.tls ? 'tls' : '',
+        sni: proxy.servername,
+        alpn: '',
+        fp: proxy['client-fingerprint']
+      };
+      const encoded = Buffer.from(JSON.stringify(vmessObj)).toString('base64');
+      link = `vmess://${encoded}`;
+    } else if (proxy.type === 'vless') {
+      const params = new URLSearchParams({
+        encryption: proxy.encryption,
+        security: proxy.tls ? (reality ? 'reality' : 'tls') : 'none',
+        fp: proxy['client-fingerprint'],
+        type: network,
+        ...(network === 'ws' && { path: proxy['ws-opts']?.path || '/', host: proxy['ws-opts']?.headers?.Host || '' }),
+        ...(reality && { 'pbk': pbk, 'sid': sid }),
+        sni: proxy.servername
+      });
+      link = `vless://${proxy.uuid}@${server}:${port}?${params.toString()}#${sni || server}`;
+    }
+    if (link) base64Links.push(link);
+  } catch (e) {
+    console.warn(`xray ${proxy.type} base64 链接生成失败:`, e.message);
+  }
 }
 
-function processSingbox(data, set) {
+function processSingbox(data, set, base64Links) {
   const ob = data.outbounds?.[0];
   if (!ob || ob.type !== 'hysteria') return;
   const tls = ob.tls || {};
@@ -263,15 +347,89 @@ function processSingbox(data, set) {
     alpn: tls.alpn?.[0] ? [tls.alpn[0]] : ['h3']
   };
   set.add(JSON.stringify(proxy));
+
+  // 同 processHysteria 的链接生成
+  try {
+    const params = new URLSearchParams({
+      protocol: proxy.protocol,
+      auth: proxy.auth_str,
+      peer: proxy.sni,
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      upmbps: proxy.up || '',
+      downmbps: proxy.down || '',
+      alpn: proxy.alpn[0] || 'h3'
+    });
+    const link = `hysteria://${proxy.server}:${proxy.port}?${params.toString()}#${proxy.sni || proxy.server}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('singbox hysteria base64 链接生成失败:', e.message);
+  }
 }
 
-function processClash(data, set) {
+function processClash(data, set, base64Links) {
   const proxies = data.proxies || [];
   for (const p of proxies) {
     if (!p || typeof p !== 'object') continue;
     const dedup = { ...p };
     delete dedup.name;
+
+    // 尝试保留原始 name 用于备注
+    const remark = p.name || `${p.type}-${p.server || '未知'}`;
+
     set.add(JSON.stringify(dedup));
+
+    // Clash 原始 proxy → base64 链接（仅支持常见类型）
+    try {
+      let link;
+      if (p.type === 'vmess') {
+        const vmessObj = {
+          v: '2',
+          ps: remark,
+          add: p.server,
+          port: p.port,
+          id: p.uuid,
+          aid: p.alterId || 0,
+          net: p.network || 'tcp',
+          type: 'none',
+          host: p['ws-opts']?.headers?.Host || p.servername || '',
+          path: p['ws-opts']?.path || '',
+          tls: p.tls ? 'tls' : '',
+          sni: p.servername || ''
+        };
+        const encoded = Buffer.from(JSON.stringify(vmessObj)).toString('base64');
+        link = `vmess://${encoded}`;
+      } else if (p.type === 'vless') {
+        const params = new URLSearchParams({
+          encryption: p.encryption || 'none',
+          security: p.tls ? 'tls' : 'none',
+          type: p.network || 'tcp',
+          ...(p['ws-opts'] && { path: p['ws-opts'].path || '/', host: p['ws-opts'].headers?.Host || '' }),
+          sni: p.servername || '',
+          fp: p['client-fingerprint'] || 'chrome'
+        });
+        link = `vless://${p.uuid}@${p.server}:${p.port}?${params.toString()}#${remark}`;
+      } else if (p.type === 'hysteria') {
+        const params = new URLSearchParams({
+          auth: p.auth_str || '',
+          peer: p.sni || '',
+          insecure: p['skip-cert-verify'] ? '1' : '0',
+          upmbps: p.up || '',
+          downmbps: p.down || '',
+          alpn: (p.alpn?.[0] || 'h3')
+        });
+        link = `hysteria://${p.server}:${p.port}?${params.toString()}#${remark}`;
+      } else if (p.type === 'hysteria2') {
+        const authPart = p.password ? `${encodeURIComponent(p.password)}@` : '';
+        const params = new URLSearchParams({
+          insecure: p['skip-cert-verify'] ? '1' : '0',
+          sni: p.sni || ''
+        });
+        link = `hysteria2://${authPart}${p.server}:${p.port}?${params.toString()}#${remark}`;
+      }
+      if (link) base64Links.push(link);
+    } catch (e) {
+      console.warn(`clash ${p.输入} base64 转换失败:`, e.message);
+    }
   }
 }
 
@@ -283,8 +441,13 @@ app.get('/', async (req, res) => {
   res.send(cachedYaml);
 });
 
+app.get('/base64', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.send(cachedBase64 || '没有可用 base64 订阅');
+});
+
 app.listen(3000, async () => {
   console.log('🚀 chrogojd 服务已启动 - 端口 3000');
   await updateCache();
-  cron.schedule('0 0 * * *', updateCache);
+  cron.schedule('0 0 * * *', updateCache);  // 每天0点更新
 });
