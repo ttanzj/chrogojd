@@ -94,9 +94,57 @@ async function updateCache() {
 
   cachedYaml = yaml.dump(config, { lineWidth: -1, noRefs: true });
   console.log('🚀 节点缓存更新完成');
+
+  // 自动上传到 GitHub
+  await uploadToGitHub(cachedYaml);
 }
 
-// ==================== 处理函数 ====================
+// ==================== GitHub 上传函数 ====================
+async function uploadToGitHub(content) {
+  const {
+    GITHUB_TOKEN,
+    GITHUB_REPO = 'ttanzj/chrogojd',
+    GITHUB_FILE_PATH = 'clash-cache.yaml',
+    GITHUB_BRANCH = 'main'
+  } = process.env;
+
+  if (!GITHUB_TOKEN) {
+    console.log('⚠️ 未设置 GITHUB_TOKEN，跳过上传 GitHub');
+    return;
+  }
+
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+  const headers = { Authorization: `token ${GITHUB_TOKEN}` };
+  const encodedContent = Buffer.from(content).toString('base64');
+
+  try {
+    let sha = null;
+    try {
+      const getRes = await axios.get(`${url}?ref=${GITHUB_BRANCH}`, { headers });
+      sha = getRes.data.sha;
+    } catch (err) {
+      if (err.response?.status !== 404) throw err;
+      console.log(`📁 文件 ${GITHUB_FILE_PATH} 不存在，将首次创建`);
+    }
+
+    await axios.put(
+      url,
+      {
+        message: `🤖 自动更新节点缓存 - ${new Date().toISOString()}`,
+        content: encodedContent,
+        sha: sha,
+        branch: GITHUB_BRANCH
+      },
+      { headers }
+    );
+
+    console.log(`✅ 节点缓存已成功上传到 GitHub → ${GITHUB_REPO}/${GITHUB_FILE_PATH}`);
+  } catch (err) {
+    console.error('❌ 上传 GitHub 失败:', err.response?.data?.message || err.message);
+  }
+}
+
+// ==================== 完整处理函数 ====================
 function processHysteria(data, set) {
   if (!data?.server) return;
   const [server, port] = data.server.split(':');
@@ -232,14 +280,11 @@ app.get('/', async (req, res) => {
   if (cachedYaml.includes('初始化')) await updateCache();
 
   res.setHeader('Content-Type', 'text/yaml; charset=utf-8');
-  // 已移除 attachment，让浏览器直接显示内容
-  // res.setHeader('Content-Disposition', 'attachment; filename="clash_config.yaml"');
-
   res.send(cachedYaml);
 });
 
 app.listen(3000, async () => {
   console.log('🚀 chrogojd 服务已启动 - 端口 3000');
-  await updateCache();           // 启动时立即抓取
-  cron.schedule('0 0 * * *', updateCache); // 每天 00:00 UTC 更新一次
+  await updateCache();
+  cron.schedule('0 0 * * *', updateCache);
 });
