@@ -17,7 +17,7 @@ dns:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
   fallback:
-    - https://1.0.0.1/dns-query
+    - https://1.0.1.1/dns-query
     - tls://dns.google
   fallback-filter:
     geoip: true
