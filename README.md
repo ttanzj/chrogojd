@@ -26,9 +26,7 @@ Clash 全节点自动聚合服务（支持 Hysteria / Hysteria2 / Xray / Singbox
 编辑 `subscriptions.json` → push → GitHub Action 自动重新构建镜像。
 
 ## 订阅地址回传github
-使用方法（ClawCloud 部署时必须设置）在 ClawCloud 部署页面 → 环境变量 添加以下变量：变量名
-值示例
-说明
+使用方法（ClawCloud 部署时必须设置）在 ClawCloud 部署页面 → 环境变量 添加以下变量：变量名值示例说明
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx  必须（repo 权限）
 GITHUB_REPO=你的用户名/chrogojd  默认即可
 GITHUB_FILE_PATH=clash-cache.yaml  可自定义文件名
