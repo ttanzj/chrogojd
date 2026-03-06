@@ -4,7 +4,6 @@
 *.md
 base64.txt
 clash-cache.yaml
-subscriptions.json
 server.js-back
 subscriptions.json-back
 node_modules/
