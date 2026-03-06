@@ -1,4 +1,4 @@
-name: Docker Build & Push to GHCR
+name: Docker Build & Push to GHCR + Cleanup
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push multi-platform
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -37,6 +37,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/chrogojd:latest
             ghcr.io/${{ github.repository_owner }}/chrogojd:${{ github.sha }}
+          # platforms: linux/amd64,linux/arm64  # 如果需要多架构支持，取消注释
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -46,19 +47,19 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     permissions:
-      packages: write  # delete 需要 write 权限
+      packages: write
 
     steps:
-      - name: Keep only the 3 most recent versions + clean old untagged/sha
-        uses: snok/container-retention-policy@v3  # 升级到 v3
+      - name: Keep recent 5 tagged + all within 14 days
+        uses: snok/container-retention-policy@v3
         with:
-          account: user  # 或 organization + org-name: your-org
-          token: ${{ secrets.GITHUB_TOKEN }}  # 如果过滤不准，建议换成 PAT（见下面）
-          image-names: chrogojd  # 只针对这个镜像（仓库 owner 自动加 ghcr.io/.../ 前缀）
-          # image-tags: "*"      # 如果想覆盖所有 tag（包括 sha tag），加这个
-          cut-off: 14 days ago   # 必须！超过 14 天才考虑删除（可调小如 7 days ago）
-          keep-n-most-recent: 3  # 只保留 tagged 的最近 3 个（按创建/更新时间）
-          timestamp-to-use: created_at  # 建议用 created_at，更稳定（不会因 re-tag 刷新）
-          tag-selection: both    # both = tagged + untagged 都处理（推荐）
-          dry-run: true          # 先开 true，看日志确认要删什么，再改 false
-          rust-log: debug        # 详细日志，便于 debug
+          account: user                     # 如果是组织仓库，改成 organization
+          # org-name: your-org-name         # 组织仓库时需要，加在这里
+          token: ${{ secrets.GITHUB_TOKEN }}  # 建议替换为 PAT（见下方说明）
+          image-names: chrogojd
+          cut-off: 14 days ago
+          keep-n-most-recent: 5
+          timestamp-to-use: created_at
+          tag-selection: both
+          dry-run: true                     # 第一次运行建议保持 true，确认逻辑后再改 false
+          rust-log: debug
