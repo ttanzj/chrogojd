@@ -26,8 +26,8 @@ dns:
       - 240.0.0.0/4
 proxies:
   - type: hysteria
-    server: '[2001'
-    port: null
+    server: 2001:bc8:32d7:17b::2
+    port: 11000
     auth_str: dongtaiwang.com
     up: 11
     down: 55
@@ -37,15 +37,27 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 节点1
+    name: HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
   - type: hysteria2
-    server: '[2001'
-    port: null
+    server: 2001:bc8:32d7:17b::8
+    port: 22000
     password: dongtaiwang.com
     fast-open: true
     sni: apple.com
     skip-cert-verify: true
-    name: 节点2
+    alpn:
+      - h3
+    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com)
+  - type: hysteria2
+    server: 2001:bc8:32d7:302::11
+    port: 20088
+    password: dongtaiwang.com
+    fast-open: true
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com)
   - type: vless
     server: 2001:bc8:32d7:302::13
     port: 34324
@@ -61,7 +73,7 @@ proxies:
     reality-opts:
       public-key: pHn5CHa2P6-lNBIkTOI3zJQN19jfNFkXxGFuyefpP0M
       short-id: ''
-    name: 节点3
+    name: VLESS [IPv6] • 2001:bc8:32d7:302::13
   - type: vmess
     server: 104.21.238.35
     port: 2086
@@ -78,7 +90,7 @@ proxies:
       path: github.com/Alvin9999
       headers:
         Host: ip29.9447609.xyz
-    name: 节点4
+    name: VMESS • 104.21.238.35
   - type: vmess
     server: 2001:bc8:32d7:302::10
     port: 44579
@@ -95,7 +107,7 @@ proxies:
       path: /
       headers:
         Host: 2001:bc8:32d7:302::10
-    name: 节点5
+    name: VMESS [IPv6] • 2001:bc8:32d7:302::10
   - type: vmess
     server: 104.21.238.35
     port: 2086
@@ -112,7 +124,7 @@ proxies:
       path: github.com/Alvin9999
       headers:
         Host: ip19.9447609.xyz
-    name: 节点6
+    name: VMESS • 104.21.238.35
   - type: hysteria
     server: 5.83.129.90
     port: 54177
@@ -125,7 +137,7 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 节点7
+    name: HYSTERIA • 5.83.129.90 (bing.com)
   - type: hysteria
     server: 45.150.65.154
     port: 47119
@@ -138,7 +150,7 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 节点8
+    name: HYSTERIA • 45.150.65.154 (bing.com)
   - type: hysteria
     server: 2001:bc8:32d7:17b::2
     port: 11000
@@ -150,7 +162,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 节点9
+    name: HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
   - server: 2001:bc8:32d7:302::16
     port: 34997
     type: tuic
@@ -163,7 +175,7 @@ proxies:
     reduce-rtt: true
     udp-relay-mode: native
     congestion-controller: bbr
-    name: 节点10
+    name: TUIC [IPv6] • 2001:bc8:32d7:302::16 (bing.com)
   - type: hysteria2
     server: 2001:bc8:32d7:302::17
     port: 20088
@@ -175,7 +187,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 节点11
+    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::17 (apple.com)
   - type: hysteria
     server: 5.83.129.143
     port: 26691
@@ -187,7 +199,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 节点12
+    name: HYSTERIA • 5.83.129.143 (apple.com)
   - type: hysteria
     server: 2a14:7584:d099::a
     port: 26691
@@ -199,7 +211,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 节点13
+    name: HYSTERIA [IPv6] • 2a14:7584:d099::a (apple.com)
   - server: ip1.758733.xyz
     port: 10088
     type: tuic
@@ -212,7 +224,7 @@ proxies:
     udp-relay-mode: native
     skip-cert-verify: true
     congestion-controller: bbr
-    name: 节点14
+    name: TUIC • ip1.758733.xyz (apple.com)
   - type: hysteria
     server: ip1.758733.xyz
     port: 23008
@@ -224,7 +236,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 节点15
+    name: HYSTERIA • ip1.758733.xyz (apple.com)
   - type: vless
     server: 2001:bc8:32d7:181::3
     port: 17401
@@ -248,7 +260,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: 节点16
+    name: VLESS [IPv6] • 2001:bc8:32d7:181::3
   - type: vless
     server: 2001:bc8:32d7:181::4
     port: 17401
@@ -272,7 +284,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: 节点17
+    name: VLESS [IPv6] • 2001:bc8:32d7:181::4
   - type: vless
     server: 2001:bc8:32d7:181::5
     port: 17401
@@ -296,7 +308,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: 节点18
+    name: VLESS [IPv6] • 2001:bc8:32d7:181::5
   - type: anytls
     server: 45.221.98.14
     port: 59901
@@ -310,7 +322,7 @@ proxies:
       - h2
       - http/1.1
     skip-cert-verify: true
-    name: 节点19
+    name: ANYTLS • 45.221.98.14
   - type: vless
     server: 2001:bc8:32d7:181::2
     port: 17401
@@ -334,14 +346,14 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: 节点20
+    name: VLESS [IPv6] • 2001:bc8:32d7:181::2
   - type: mieru
     server: 157.254.223.48
     port: 33990
     transport: TCP
     username: dongtaiwang.com
     password: dongtaiwang.com
-    name: 节点21
+    name: MIERU • 157.254.223.48
   - type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -353,7 +365,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 节点22
+    name: HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
   - type: hysteria
     server: 5.83.129.153
     port: 20088
@@ -366,7 +378,7 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 节点23
+    name: HYSTERIA • 5.83.129.153 (apple.com)
   - type: hysteria
     server: 5.83.129.90
     port: 54177
@@ -379,7 +391,7 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 节点24
+    name: HYSTERIA • 5.83.129.90 (apple.com)
   - type: hysteria2
     server: 89.144.35.34
     port: 43608
@@ -387,15 +399,19 @@ proxies:
     fast-open: true
     sni: apple.com
     skip-cert-verify: true
-    name: 节点25
+    alpn:
+      - h3
+    name: HYSTERIA2 • 89.144.35.34 (apple.com)
   - type: hysteria2
-    server: 157.254.223.24
-    port: null
+    server: 157.254.223.24:30088,31000-32000
+    port: 443
     password: alvin9999.com
     fast-open: true
     sni: apple.com
     skip-cert-verify: true
-    name: 节点26
+    alpn:
+      - h3
+    name: HYSTERIA2 [IPv6] • 157.254.223.24:30088,31000-32000 (apple.com)
   - type: hysteria2
     server: 62.210.124.146
     port: 22000
@@ -403,15 +419,19 @@ proxies:
     fast-open: true
     sni: www.microsoft.com
     skip-cert-verify: true
-    name: 节点27
+    alpn:
+      - h3
+    name: HYSTERIA2 • 62.210.124.146 (www.microsoft.com)
   - type: hysteria2
-    server: '[2a14'
-    port: 7584
+    server: 2a14:7584:d04a::a
+    port: 50022
     password: dongtaiwang.com
     fast-open: true
     sni: apple.com
     skip-cert-verify: true
-    name: 节点28
+    alpn:
+      - h3
+    name: HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com)
   - type: vless
     server: fan3.394615.xyz
     port: 34500
@@ -426,7 +446,7 @@ proxies:
     reality-opts:
       public-key: Yg6kOijRv1IbFcwhY0WmwJ8KW7YTtux4QlQhekEzNEQ
       short-id: 3a1381d1b2cc9e19
-    name: 节点29
+    name: VLESS • fan3.394615.xyz
   - type: vless
     server: 163.172.116.154
     port: 34598
@@ -441,7 +461,7 @@ proxies:
     reality-opts:
       public-key: '-ZbYVgqnVfRobtjvfnNJBTO3bnQ2c3r4v8jyGRD1VHI'
       short-id: 4a8c287920a355b7
-    name: 节点30
+    name: VLESS • 163.172.116.154
   - type: vless
     server: 89.144.35.230
     port: 54582
@@ -457,7 +477,7 @@ proxies:
     reality-opts:
       public-key: kfw5DgkyKiovC3dzb-o2PUYnZPnbYvbx2IwERUv9czY
       short-id: 225e2cc8
-    name: 节点31
+    name: VLESS • 89.144.35.230
   - type: vless
     server: 2a14:7584:d097::a
     port: 11330
@@ -472,83 +492,85 @@ proxies:
     reality-opts:
       public-key: 3HaD5Ztk3X4gi3aJLVesV6KSJTW2YGG-hvGD3ZumJkE
       short-id: fa789b2f5ff56959
-    name: 节点32
+    name: VLESS [IPv6] • 2a14:7584:d097::a
 proxy-groups:
   - name: 节点选择
     type: select
     proxies:
       - 自动选择
       - DIRECT
-      - 节点1
-      - 节点2
-      - 节点3
-      - 节点4
-      - 节点5
-      - 节点6
-      - 节点7
-      - 节点8
-      - 节点9
-      - 节点10
-      - 节点11
-      - 节点12
-      - 节点13
-      - 节点14
-      - 节点15
-      - 节点16
-      - 节点17
-      - 节点18
-      - 节点19
-      - 节点20
-      - 节点21
-      - 节点22
-      - 节点23
-      - 节点24
-      - 节点25
-      - 节点26
-      - 节点27
-      - 节点28
-      - 节点29
-      - 节点30
-      - 节点31
-      - 节点32
+      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
+      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com)
+      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com)
+      - VLESS [IPv6] • 2001:bc8:32d7:302::13
+      - VMESS • 104.21.238.35
+      - VMESS [IPv6] • 2001:bc8:32d7:302::10
+      - VMESS • 104.21.238.35
+      - HYSTERIA • 5.83.129.90 (bing.com)
+      - HYSTERIA • 45.150.65.154 (bing.com)
+      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
+      - TUIC [IPv6] • 2001:bc8:32d7:302::16 (bing.com)
+      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::17 (apple.com)
+      - HYSTERIA • 5.83.129.143 (apple.com)
+      - HYSTERIA [IPv6] • 2a14:7584:d099::a (apple.com)
+      - TUIC • ip1.758733.xyz (apple.com)
+      - HYSTERIA • ip1.758733.xyz (apple.com)
+      - VLESS [IPv6] • 2001:bc8:32d7:181::3
+      - VLESS [IPv6] • 2001:bc8:32d7:181::4
+      - VLESS [IPv6] • 2001:bc8:32d7:181::5
+      - ANYTLS • 45.221.98.14
+      - VLESS [IPv6] • 2001:bc8:32d7:181::2
+      - MIERU • 157.254.223.48
+      - HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
+      - HYSTERIA • 5.83.129.153 (apple.com)
+      - HYSTERIA • 5.83.129.90 (apple.com)
+      - HYSTERIA2 • 89.144.35.34 (apple.com)
+      - HYSTERIA2 [IPv6] • 157.254.223.24:30088,31000-32000 (apple.com)
+      - HYSTERIA2 • 62.210.124.146 (www.microsoft.com)
+      - HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com)
+      - VLESS • fan3.394615.xyz
+      - VLESS • 163.172.116.154
+      - VLESS • 89.144.35.230
+      - VLESS [IPv6] • 2a14:7584:d097::a
   - name: 自动选择
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
     proxies:
-      - 节点1
-      - 节点2
-      - 节点3
-      - 节点4
-      - 节点5
-      - 节点6
-      - 节点7
-      - 节点8
-      - 节点9
-      - 节点10
-      - 节点11
-      - 节点12
-      - 节点13
-      - 节点14
-      - 节点15
-      - 节点16
-      - 节点17
-      - 节点18
-      - 节点19
-      - 节点20
-      - 节点21
-      - 节点22
-      - 节点23
-      - 节点24
-      - 节点25
-      - 节点26
-      - 节点27
-      - 节点28
-      - 节点29
-      - 节点30
-      - 节点31
-      - 节点32
+      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
+      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com)
+      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com)
+      - VLESS [IPv6] • 2001:bc8:32d7:302::13
+      - VMESS • 104.21.238.35
+      - VMESS [IPv6] • 2001:bc8:32d7:302::10
+      - VMESS • 104.21.238.35
+      - HYSTERIA • 5.83.129.90 (bing.com)
+      - HYSTERIA • 45.150.65.154 (bing.com)
+      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
+      - TUIC [IPv6] • 2001:bc8:32d7:302::16 (bing.com)
+      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::17 (apple.com)
+      - HYSTERIA • 5.83.129.143 (apple.com)
+      - HYSTERIA [IPv6] • 2a14:7584:d099::a (apple.com)
+      - TUIC • ip1.758733.xyz (apple.com)
+      - HYSTERIA • ip1.758733.xyz (apple.com)
+      - VLESS [IPv6] • 2001:bc8:32d7:181::3
+      - VLESS [IPv6] • 2001:bc8:32d7:181::4
+      - VLESS [IPv6] • 2001:bc8:32d7:181::5
+      - ANYTLS • 45.221.98.14
+      - VLESS [IPv6] • 2001:bc8:32d7:181::2
+      - MIERU • 157.254.223.48
+      - HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
+      - HYSTERIA • 5.83.129.153 (apple.com)
+      - HYSTERIA • 5.83.129.90 (apple.com)
+      - HYSTERIA2 • 89.144.35.34 (apple.com)
+      - HYSTERIA2 [IPv6] • 157.254.223.24:30088,31000-32000 (apple.com)
+      - HYSTERIA2 • 62.210.124.146 (www.microsoft.com)
+      - HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com)
+      - VLESS • fan3.394615.xyz
+      - VLESS • 163.172.116.154
+      - VLESS • 89.144.35.230
+      - VLESS [IPv6] • 2a14:7584:d097::a
 rules:
   - DOMAIN,clash.razord.top,DIRECT
   - DOMAIN,yacd.haishan.me,DIRECT
