@@ -7,7 +7,7 @@ const { Buffer } = require('buffer');
 
 const app = express();
 let cachedYaml = '# 正在初始化节点，请稍等...\n';
-let cachedBase64 = '';  // base64 订阅内容（编码前是明文链接列表）
+let cachedBase64 = '';  // 新增：base64 订阅内容（编码前是明文链接列表）
 
 async function updateCache() {
   console.log('🔄 开始更新节点缓存...');
@@ -58,7 +58,6 @@ async function updateCache() {
 
   for (let i = 0; i < proxyStrs.length; i++) {
     const obj = JSON.parse(proxyStrs[i]);
-    // 改进命名：更容易辨识 IPv6 和类型
     const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
     obj.name = `${obj.type.toUpperCase()}${isIPv6 ? ' [IPv6]' : ''} • ${obj.server || '未知'}`;
     if (obj.sni && obj.sni !== obj.server) obj.name += ` (${obj.sni})`;
@@ -101,7 +100,7 @@ async function updateCache() {
   cachedYaml = yaml.dump(config, { lineWidth: -1, noRefs: true });
   console.log('🚀 Clash YAML 缓存更新完成');
 
-  // 生成 base64 订阅内容
+  // 新增：生成 base64 订阅内容
   if (base64Links.length > 0) {
     const plainText = base64Links.join('\n');
     cachedBase64 = Buffer.from(plainText).toString('base64');
@@ -116,7 +115,7 @@ async function updateCache() {
   await uploadToGitHub(cachedBase64, 'base64.txt', '🤖 自动更新 Base64 订阅');
 }
 
-// ==================== GitHub 上传函数（不变） ====================
+// ==================== GitHub 上传函数（稍作通用化） ====================
 async function uploadToGitHub(content, filePath, commitMessagePrefix) {
   const {
     GITHUB_TOKEN,
@@ -160,19 +159,19 @@ async function uploadToGitHub(content, filePath, commitMessagePrefix) {
   }
 }
 
-// ==================== 新增辅助函数：安全解析 server:port（支持 IPv6 [xxxx]:port 格式） ====================
+// ==================== 新增辅助函数 ====================
 function parseServerPort(serverStr, defaultPort = 443) {
   if (!serverStr) return { server: '', port: defaultPort };
 
   serverStr = serverStr.trim();
 
-  // 最常见格式： [2001:db8::1]:8443
+  // [2001:db8::1]:8443
   const bracketMatch = serverStr.match(/^\[([^\]]+)\]:(\d+)$/);
   if (bracketMatch) {
     return { server: bracketMatch[1], port: Number(bracketMatch[2]) };
   }
 
-  // 无括号但有端口的 IPv6： 2001:db8::1:8443
+  // 2001:db8::1:8443 （无括号）
   const lastColon = serverStr.lastIndexOf(':');
   if (lastColon > serverStr.lastIndexOf(']') && lastColon !== -1) {
     const possiblePort = serverStr.slice(lastColon + 1);
@@ -181,21 +180,18 @@ function parseServerPort(serverStr, defaultPort = 443) {
     }
   }
 
-  // 普通域名/IP:port
+  // example.com:443 或 1.1.1.1
   const parts = serverStr.split(':');
   if (parts.length === 2 && /^\d+$/.test(parts[1])) {
     return { server: parts[0], port: Number(parts[1]) };
   }
 
-  // 无端口情况
   return { server: serverStr, port: defaultPort };
 }
 
-// 规范化 proxy 对象，用于更可靠的去重
 function normalizeProxy(proxy) {
   const norm = { ...proxy };
-  delete norm.name;  // 名字不参与去重
-  // 统一默认值
+  delete norm.name;
   norm['skip-cert-verify'] = norm['skip-cert-verify'] ?? true;
   norm.sni = norm.sni || norm.server || '';
   if (norm.alpn && Array.isArray(norm.alpn)) {
@@ -204,10 +200,9 @@ function normalizeProxy(proxy) {
   return norm;
 }
 
-// ==================== 处理函数（仅 hysteria 和 hysteria2 大幅改进，其他保持原样） ====================
+// ==================== 处理函数 ====================
 function processHysteria(data, set, base64Links) {
   if (!data?.server) return;
-
   const { server, port } = parseServerPort(data.server, 443);
 
   const proxy = {
@@ -223,10 +218,8 @@ function processHysteria(data, set, base64Links) {
     'skip-cert-verify': true,
     alpn: data.alpn ? [data.alpn] : ['h3']
   };
-
   set.add(JSON.stringify(normalizeProxy(proxy)));
 
-  // 生成 hysteria:// 分享链接
   try {
     const serverPart = server.includes(':') && !server.startsWith('[') ? `[${server}]` : server;
     const params = new URLSearchParams({
@@ -247,7 +240,6 @@ function processHysteria(data, set, base64Links) {
 
 function processHysteria2(data, set, base64Links) {
   if (!data?.server) return;
-
   const { server, port } = parseServerPort(data.server, 443);
 
   const tls = data.tls || {};
@@ -266,10 +258,8 @@ function processHysteria2(data, set, base64Links) {
     'skip-cert-verify': tls.insecure ?? true,
     alpn: tls.alpn || ['h3']
   };
-
   set.add(JSON.stringify(normalizeProxy(proxy)));
 
-  // 生成 hysteria2:// 分享链接（IPv6 需要加方括号）
   try {
     const serverPart = server.includes(':') && !server.startsWith('[') ? `[${server}]` : server;
     const authPart = password ? `${encodeURIComponent(password)}@` : '';
@@ -284,7 +274,6 @@ function processHysteria2(data, set, base64Links) {
   }
 }
 
-// ==================== 其他处理函数保持完全不变 ====================
 function processXray(data, set, base64Links) {
   const ob = data.outbounds?.[0];
   if (!ob || !['vless', 'vmess'].includes(ob.protocol)) return;
@@ -349,7 +338,6 @@ function processXray(data, set, base64Links) {
 
   set.add(JSON.stringify(proxy));
 
-  // 尝试生成 vmess:// 或 vless:// base64 链接（标准 V2Ray 分享格式）
   try {
     let link;
     if (proxy.type === 'vmess') {
@@ -408,7 +396,6 @@ function processSingbox(data, set, base64Links) {
   };
   set.add(JSON.stringify(proxy));
 
-  // 同 processHysteria 的链接生成
   try {
     const params = new URLSearchParams({
       protocol: proxy.protocol,
@@ -433,12 +420,10 @@ function processClash(data, set, base64Links) {
     const dedup = { ...p };
     delete dedup.name;
 
-    // 尝试保留原始 name 用于备注
     const remark = p.name || `${p.type}-${p.server || '未知'}`;
 
     set.add(JSON.stringify(dedup));
 
-    // Clash 原始 proxy → base64 链接（仅支持常见类型）
     try {
       let link;
       if (p.type === 'vmess') {
@@ -448,7 +433,7 @@ function processClash(data, set, base64Links) {
           add: p.server,
           port: p.port,
           id: p.uuid,
-          aid: p。alterId || 0,
+          aid: p.alterId || 0,
           net: p.network || 'tcp',
           type: 'none',
           host: p['ws-opts']?.headers?.Host || p.servername || '',
