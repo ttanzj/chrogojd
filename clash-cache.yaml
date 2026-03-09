@@ -37,7 +37,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
+    portRange: '11000'
+    name: 'HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (跳跃端口: 11000) (apple.com)'
   - type: hysteria2
     server: 2001:bc8:32d7:17b::8
     port: 22000
@@ -47,7 +48,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com)
+    portRange: '22000'
+    name: 'HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (跳跃端口: 22000) (apple.com)'
   - type: hysteria2
     server: 2001:bc8:32d7:302::11
     port: 20088
@@ -57,7 +59,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com)
+    portRange: '20088'
+    name: 'HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (跳跃端口: 20088) (apple.com)'
   - type: vless
     server: 2001:bc8:32d7:302::13
     port: 34324
@@ -378,7 +381,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA • 5.83.129.153 (apple.com)
+    portRange: '20088'
+    name: 'HYSTERIA • 5.83.129.153 (跳跃端口: 20088) (apple.com)'
   - type: hysteria
     server: 5.83.129.90
     port: 54177
@@ -391,7 +395,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA • 5.83.129.90 (apple.com)
+    portRange: '54177'
+    name: 'HYSTERIA • 5.83.129.90 (跳跃端口: 54177) (apple.com)'
   - type: hysteria2
     server: 89.144.35.34
     port: 43608
@@ -401,17 +406,19 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA2 • 89.144.35.34 (apple.com)
+    portRange: '43608'
+    name: 'HYSTERIA2 • 89.144.35.34 (跳跃端口: 43608) (apple.com)'
   - type: hysteria2
-    server: 157.254.223.24:30088,31000-32000
-    port: 443
+    server: 157.254.223.24
+    port: 30088
     password: alvin9999.com
     fast-open: true
     sni: apple.com
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA2 [IPv6] • 157.254.223.24:30088,31000-32000 (apple.com)
+    portRange: 30088,31000-32000
+    name: 'HYSTERIA2 • 157.254.223.24 (跳跃端口: 30088,31000-32000) (apple.com)'
   - type: hysteria2
     server: 62.210.124.146
     port: 22000
@@ -421,7 +428,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA2 • 62.210.124.146 (www.microsoft.com)
+    portRange: '22000'
+    name: 'HYSTERIA2 • 62.210.124.146 (跳跃端口: 22000) (www.microsoft.com)'
   - type: hysteria2
     server: 2a14:7584:d04a::a
     port: 50022
@@ -431,7 +439,8 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com)
+    portRange: '50022'
+    name: 'HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (跳跃端口: 50022) (apple.com)'
   - type: vless
     server: fan3.394615.xyz
     port: 34500
@@ -499,9 +508,9 @@ proxy-groups:
     proxies:
       - 自动选择
       - DIRECT
-      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com)
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com)
+      - 'HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (跳跃端口: 11000) (apple.com)'
+      - 'HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (跳跃端口: 22000) (apple.com)'
+      - 'HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (跳跃端口: 20088) (apple.com)'
       - VLESS [IPv6] • 2001:bc8:32d7:302::13
       - VMESS • 104.21.238.35
       - VMESS [IPv6] • 2001:bc8:32d7:302::10
@@ -522,12 +531,12 @@ proxy-groups:
       - VLESS [IPv6] • 2001:bc8:32d7:181::2
       - MIERU • 157.254.223.48
       - HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
-      - HYSTERIA • 5.83.129.153 (apple.com)
-      - HYSTERIA • 5.83.129.90 (apple.com)
-      - HYSTERIA2 • 89.144.35.34 (apple.com)
-      - HYSTERIA2 [IPv6] • 157.254.223.24:30088,31000-32000 (apple.com)
-      - HYSTERIA2 • 62.210.124.146 (www.microsoft.com)
-      - HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com)
+      - 'HYSTERIA • 5.83.129.153 (跳跃端口: 20088) (apple.com)'
+      - 'HYSTERIA • 5.83.129.90 (跳跃端口: 54177) (apple.com)'
+      - 'HYSTERIA2 • 89.144.35.34 (跳跃端口: 43608) (apple.com)'
+      - 'HYSTERIA2 • 157.254.223.24 (跳跃端口: 30088,31000-32000) (apple.com)'
+      - 'HYSTERIA2 • 62.210.124.146 (跳跃端口: 22000) (www.microsoft.com)'
+      - 'HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (跳跃端口: 50022) (apple.com)'
       - VLESS • fan3.394615.xyz
       - VLESS • 163.172.116.154
       - VLESS • 89.144.35.230
@@ -538,9 +547,9 @@ proxy-groups:
     interval: 300
     tolerance: 50
     proxies:
-      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com)
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com)
+      - 'HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (跳跃端口: 11000) (apple.com)'
+      - 'HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (跳跃端口: 22000) (apple.com)'
+      - 'HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (跳跃端口: 20088) (apple.com)'
       - VLESS [IPv6] • 2001:bc8:32d7:302::13
       - VMESS • 104.21.238.35
       - VMESS [IPv6] • 2001:bc8:32d7:302::10
@@ -561,12 +570,12 @@ proxy-groups:
       - VLESS [IPv6] • 2001:bc8:32d7:181::2
       - MIERU • 157.254.223.48
       - HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
-      - HYSTERIA • 5.83.129.153 (apple.com)
-      - HYSTERIA • 5.83.129.90 (apple.com)
-      - HYSTERIA2 • 89.144.35.34 (apple.com)
-      - HYSTERIA2 [IPv6] • 157.254.223.24:30088,31000-32000 (apple.com)
-      - HYSTERIA2 • 62.210.124.146 (www.microsoft.com)
-      - HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com)
+      - 'HYSTERIA • 5.83.129.153 (跳跃端口: 20088) (apple.com)'
+      - 'HYSTERIA • 5.83.129.90 (跳跃端口: 54177) (apple.com)'
+      - 'HYSTERIA2 • 89.144.35.34 (跳跃端口: 43608) (apple.com)'
+      - 'HYSTERIA2 • 157.254.223.24 (跳跃端口: 30088,31000-32000) (apple.com)'
+      - 'HYSTERIA2 • 62.210.124.146 (跳跃端口: 22000) (www.microsoft.com)'
+      - 'HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (跳跃端口: 50022) (apple.com)'
       - VLESS • fan3.394615.xyz
       - VLESS • 163.172.116.154
       - VLESS • 89.144.35.230
