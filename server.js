@@ -7,14 +7,14 @@ const { Buffer } = require('buffer');
 
 const app = express();
 let cachedYaml = '# 正在初始化节点，请稍等...\n';
-let cachedBase64 = '';  // 新增：base64 订阅内容（编码前是明文链接列表）
+let cachedBase64 = '';
 
 async function updateCache() {
   console.log('🔄 开始更新节点缓存...');
   const sites = JSON.parse(fs.readFileSync('./subscriptions.json', 'utf8'));
   const uniqueSet = new Set();
   let success = 0;
-  const base64Links = [];  // 收集可转换的分享链接
+  const base64Links = [];
 
   for (const site of sites) {
     try {
@@ -51,7 +51,6 @@ async function updateCache() {
 
   console.log(`✅ 成功抓取 ${success}/${sites.length} 个来源，共 ${uniqueSet.size} 个唯一节点`);
 
-  // 构建 Clash 配置（原有部分）
   const proxyStrs = Array.from(uniqueSet);
   const proxyObjects = [];
   const proxyNames = [];
@@ -59,8 +58,12 @@ async function updateCache() {
   for (let i = 0; i < proxyStrs.length; i++) {
     const obj = JSON.parse(proxyStrs[i]);
     const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
-    obj.name = `${obj.type.toUpperCase()}${isIPv6 ? ' [IPv6]' : ''} • ${obj.server || '未知'}`;
-    if (obj.sni && obj.sni !== obj.server) obj.name += ` (${obj.sni})`;
+    let name = `${obj.type.toUpperCase()}${isIPv6 ? ' [IPv6]' : ''} • ${obj.server || '未知'}`;
+    if (obj.portRange) {
+      name += ` (跳跃端口: ${obj.portRange})`;  // 明显标注跳跃范围
+    }
+    if (obj.sni && obj.sni !== obj.server) name += ` (${obj.sni})`;
+    obj.name = name;
     proxyObjects.push(obj);
     proxyNames.push(obj.name);
   }
@@ -100,7 +103,6 @@ async function updateCache() {
   cachedYaml = yaml.dump(config, { lineWidth: -1, noRefs: true });
   console.log('🚀 Clash YAML 缓存更新完成');
 
-  // 新增：生成 base64 订阅内容
   if (base64Links.length > 0) {
     const plainText = base64Links.join('\n');
     cachedBase64 = Buffer.from(plainText).toString('base64');
@@ -110,12 +112,10 @@ async function updateCache() {
     console.log('⚠️ 没有可转换为 base64 的节点');
   }
 
-  // 上传两个文件到 GitHub
   await uploadToGitHub(cachedYaml, 'clash-cache.yaml', '🤖 自动更新 Clash YAML 缓存');
   await uploadToGitHub(cachedBase64, 'base64.txt', '🤖 自动更新 Base64 订阅');
 }
 
-// ==================== GitHub 上传函数（稍作通用化） ====================
 async function uploadToGitHub(content, filePath, commitMessagePrefix) {
   const {
     GITHUB_TOKEN,
@@ -159,34 +159,50 @@ async function uploadToGitHub(content, filePath, commitMessagePrefix) {
   }
 }
 
-// ==================== 新增辅助函数 ====================
+// ==================== 增强版解析函数：支持端口范围 ====================
 function parseServerPort(serverStr, defaultPort = 443) {
-  if (!serverStr) return { server: '', port: defaultPort };
+  if (!serverStr) return { server: '', port: defaultPort, portRange: null };
 
   serverStr = serverStr.trim();
 
-  // [2001:db8::1]:8443
-  const bracketMatch = serverStr.match(/^\[([^\]]+)\]:(\d+)$/);
-  if (bracketMatch) {
-    return { server: bracketMatch[1], port: Number(bracketMatch[2]) };
+  // 支持 [ipv6]:port-range 格式，如 [2001:db8::1]:20000-30000
+  const bracketRangeMatch = serverStr.match(/^\[([^\]]+)\]:((\d+)(?:-\d+)?(?:,\d+(?:-\d+)?)*)$/);
+  if (bracketRangeMatch) {
+    const ip = bracketRangeMatch[1];
+    const rangeStr = bracketRangeMatch[2];
+    const firstPort = Number(rangeStr.split(/[-,]/)[0]);
+    return { server: ip, port: firstPort || defaultPort, portRange: rangeStr };
   }
 
-  // 2001:db8::1:8443 （无括号）
+  // 支持 domain:port-range，如 example.com:20000-50000
+  const rangeMatch = serverStr.match(/^([^:]+):((\d+)(?:-\d+)?(?:,\d+(?:-\d+)?)*)$/);
+  if (rangeMatch) {
+    const host = rangeMatch[1];
+    const rangeStr = rangeMatch[2];
+    const firstPort = Number(rangeStr.split(/[-,]/)[0]);
+    return { server: host, port: firstPort || defaultPort, portRange: rangeStr };
+  }
+
+  // 支持 [ipv6]:单一端口 或 domain:单一端口（原逻辑）
+  const bracketMatch = serverStr.match(/^\[([^\]]+)\]:(\d+)$/);
+  if (bracketMatch) {
+    return { server: bracketMatch[1], port: Number(bracketMatch[2]), portRange: null };
+  }
+
   const lastColon = serverStr.lastIndexOf(':');
   if (lastColon > serverStr.lastIndexOf(']') && lastColon !== -1) {
     const possiblePort = serverStr.slice(lastColon + 1);
     if (/^\d+$/.test(possiblePort)) {
-      return { server: serverStr.slice(0, lastColon), port: Number(possiblePort) };
+      return { server: serverStr.slice(0, lastColon), port: Number(possiblePort), portRange: null };
     }
   }
 
-  // example.com:443 或 1.1.1.1
   const parts = serverStr.split(':');
   if (parts.length === 2 && /^\d+$/.test(parts[1])) {
-    return { server: parts[0], port: Number(parts[1]) };
+    return { server: parts[0], port: Number(parts[1]), portRange: null };
   }
 
-  return { server: serverStr, port: defaultPort };
+  return { server: serverStr, port: defaultPort, portRange: null };
 }
 
 function normalizeProxy(proxy) {
@@ -194,16 +210,13 @@ function normalizeProxy(proxy) {
   delete norm.name;
   norm['skip-cert-verify'] = norm['skip-cert-verify'] ?? true;
   norm.sni = norm.sni || norm.server || '';
-  if (norm.alpn && Array.isArray(norm.alpn)) {
-    norm.alpn = norm.alpn.sort();
-  }
+  if (norm.alpn && Array.isArray(norm.alpn)) norm.alpn = norm.alpn.sort();
   return norm;
 }
 
-// ==================== 处理函数 ====================
 function processHysteria(data, set, base64Links) {
   if (!data?.server) return;
-  const { server, port } = parseServerPort(data.server, 443);
+  const { server, port, portRange } = parseServerPort(data.server, 443);
 
   const proxy = {
     type: 'hysteria',
@@ -216,7 +229,8 @@ function processHysteria(data, set, base64Links) {
     protocol: data.protocol || 'udp',
     sni: data.server_name || '',
     'skip-cert-verify': true,
-    alpn: data.alpn ? [data.alpn] : ['h3']
+    alpn: data.alpn ? [data.alpn] : ['h3'],
+    ...(portRange && { portRange })  // 记录范围（可选，在 Clash 中可忽略或用于备注）
   };
   set.add(JSON.stringify(normalizeProxy(proxy)));
 
@@ -240,7 +254,7 @@ function processHysteria(data, set, base64Links) {
 
 function processHysteria2(data, set, base64Links) {
   if (!data?.server) return;
-  const { server, port } = parseServerPort(data.server, 443);
+  const { server, port, portRange } = parseServerPort(data.server, 443);
 
   const tls = data.tls || {};
   let password = data.auth || data.password || data.auth_str || '';
@@ -256,7 +270,8 @@ function processHysteria2(data, set, base64Links) {
     'fast-open': true,
     sni: tls.sni || server,
     'skip-cert-verify': tls.insecure ?? true,
-    alpn: tls.alpn || ['h3']
+    alpn: tls.alpn || ['h3'],
+    ...(portRange && { portRange })  // 保留跳跃信息
   };
   set.add(JSON.stringify(normalizeProxy(proxy)));
 
@@ -267,12 +282,14 @@ function processHysteria2(data, set, base64Links) {
       insecure: proxy['skip-cert-verify'] ? '1' : '0',
       sni: proxy.sni || ''
     });
-    const link = `hysteria2://${authPart}${serverPart}:${port}?${params.toString()}#${proxy.sni || server}`;
+    const link = `hysteria2://${authPart}${serverPart}:${port}?${params.toString()}#${proxy.sni || server}${portRange ? ' (跳跃:' + portRange + ')' : ''}`;
     base64Links.push(link);
   } catch (e) {
     console.warn('hysteria2 base64 链接生成失败:', e.message);
   }
 }
+
+// 其余函数保持不变（processXray, processSingbox, processClash）
 
 function processXray(data, set, base64Links) {
   const ob = data.outbounds?.[0];
@@ -478,7 +495,6 @@ function processClash(data, set, base64Links) {
   }
 }
 
-// ==================== 服务路由 ====================
 app.get('/', async (req, res) => {
   if (cachedYaml.includes('初始化')) await updateCache();
 
@@ -494,5 +510,5 @@ app.get('/base64', (req, res) => {
 app.listen(3000, async () => {
   console.log('🚀 chrogojd 服务已启动 - 端口 3000');
   await updateCache();
-  cron.schedule('0 0 * * *', updateCache);  // 每天0点更新
+  cron.schedule('0 0 * * *', updateCache);
 });
