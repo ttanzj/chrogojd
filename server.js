@@ -19,44 +19,14 @@ async function updateCache() {
   for (const site of sites) {
     try {
       const res = await axios.get(site.url, { timeout: 20000, responseType: 'text' });
-      const raw = res.data.trim();
-
       let data;
-      let detectedType = site.type || 'unknown';
-
-      try {
-        data = yaml.load(raw);
-        if (data && typeof data === 'object') {
-          if (data.outbound || data.outbounds || data.inbound) {
-            detectedType = 'singbox-full';
-          } else if (data.proxies) {
-            detectedType = 'clash';
-          }
-        }
-      } catch (yamlErr) {
-        try {
-          data = JSON.parse(raw);
-        } catch (jsonErr) {
-          console.warn(`解析失败（非有效 YAML/JSON）: ${site.url} → ${jsonErr.message}`);
-          continue;
-        }
+      if (site.type === 'clash') {
+        data = yaml.load(res.data);
+      } else {
+        data = JSON.parse(res.data);
       }
 
-      if (!data || typeof data !== 'object') {
-        console.warn(`数据格式无效: ${site.url}`);
-        continue;
-      }
-
-      switch (detectedType) {
-        case 'singbox-full':
-          processSingboxFull(data, uniqueSet, base64Links);
-          break;
-        case 'singbox':
-          processSingbox(data, uniqueSet, base64Links);
-          break;
-        case 'clash':
-          processClash(data, uniqueSet, base64Links);
-          break;
+      switch (site.type) {
         case 'hysteria':
           processHysteria(data, uniqueSet, base64Links);
           break;
@@ -66,8 +36,12 @@ async function updateCache() {
         case 'xray':
           processXray(data, uniqueSet, base64Links);
           break;
-        default:
-          console.warn(`未知或未配置处理类型: ${detectedType} → ${site.url}`);
+        case 'singbox':
+          processSingbox(data, uniqueSet, base64Links);
+          break;
+        case 'clash':
+          processClash(data, uniqueSet, base64Links);
+          break;
       }
       success++;
     } catch (e) {
@@ -83,19 +57,15 @@ async function updateCache() {
 
   for (let i = 0; i < proxyStrs.length; i++) {
     const obj = JSON.parse(proxyStrs[i]);
-
+    const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
+    
+    // 修改此处：名称只显示地址 + 端口跳跃（如果有），不显示类型
     let name = obj.server || '未知';
-    if (obj.port && obj.port !== 443 && obj.port !== 80) {
-      name += `:${obj.port}`;
-    }
-    if (obj.sni && obj.sni !== obj.server) {
-      name += ` (${obj.sni})`;
-    }
-    if (obj.portRange) {
-      name += ` 跳跃端口:${obj.portRange}`;
-    }
+    if (isIPv6) name = `[${name}]`;  // IPv6 地址加方括号，更规范
+    if (obj.portRange) name += ` :${obj.portRange}`;
+    if (obj.sni && obj.sni !== obj.server) name += ` (${obj.sni})`;
 
-    obj.name = name.trim().slice(0, 60);
+    obj.name = name.trim();
     proxyObjects.push(obj);
     proxyNames.push(obj.name);
   }
@@ -324,166 +294,6 @@ function processHysteria2(data, set, base64Links) {
   }
 }
 
-function processSingboxFull(data, set, base64Links) {
-  let ob = data.outbound || (Array.isArray(data.outbounds) ? data.outbounds[0] : null);
-  if (!ob || !ob.type) {
-    console.warn('singbox-full 配置中缺少 outbound 或 type 字段');
-    return;
-  }
-
-  const typeLower = ob.type.toLowerCase();
-  let proxyType = typeLower;
-
-  if (typeLower === 'shadowquic') proxyType = 'hysteria';
-
-  const supported = ['hysteria', 'hysteria2', 'shadowsocks', 'tuic', 'vmess', 'vless', 'trojan'];
-  if (!supported.includes(proxyType)) {
-    console.log(`暂不支持的 sing-box outbound 类型: ${ob.type}`);
-    return;
-  }
-
-  const { server, port, portRange } = parseServerPort(ob.server || ob.addr || ob.server_addr || '', 443);
-
-  const tls = ob.tls || {};
-  const reality = tls.reality || {};
-  let sni = tls.server_name || ob['server-name'] || '';
-  let skipVerify = tls.insecure ?? true;
-  let realityOpts = reality.enabled ? { 'public-key': reality.public_key || '', 'short-id': reality.short_id || '' } : null;
-
-  const proxy = {
-    type: proxyType,
-    server,
-    port: Number(port),
-    'skip-cert-verify': skipVerify,
-    sni: sni || server,
-    'fast-open': true,
-    alpn: tls.alpn || ['h3'],
-    ...(portRange && { portRange }),
-    ...(realityOpts && { 'reality-opts': realityOpts })
-  };
-
-  switch (proxyType) {
-    case 'hysteria':
-    case 'shadowquic':
-      proxy.auth_str = ob.password || ob.username || '';
-      proxy.up = ob.up_mbps || ob.upload_mbps || '';
-      proxy.down = ob.down_mbps || ob.download_mbps || '';
-      proxy.protocol = ob.protocol || 'udp';
-      break;
-
-    case 'hysteria2':
-      proxy.password = ob.password || '';
-      break;
-
-    case 'shadowsocks':
-      proxy.cipher = ob.method || 'aes-256-gcm';
-      proxy.password = ob.password || '';
-      break;
-
-    case 'tuic':
-      proxy.uuid = ob.uuid || '';
-      proxy.password = ob.password || '';
-      proxy.congestion_control = ob.congestion_control || 'cubic';
-      proxy.network = 'udp';
-      break;
-
-    case 'vmess':
-      proxy.uuid = ob.uuid || '';
-      proxy.alterId = ob.alter_id || 0;
-      proxy.cipher = ob.security || 'auto';
-      proxy.network = ob.transport?.type || 'tcp';
-      break;
-
-    case 'vless':
-      proxy.uuid = ob.uuid || '';
-      proxy.encryption = ob.flow ? 'none' : (ob.encryption || 'none');
-      proxy.network = ob.transport?.type || 'tcp';
-      if (ob.flow) proxy.flow = ob.flow;
-      break;
-
-    case 'trojan':
-      proxy.password = ob.password || '';
-      proxy.network = ob.transport?.type || 'tcp';
-      break;
-  }
-
-  if (tls.enabled !== false) {
-    proxy.tls = true;
-    proxy['client-fingerprint'] = tls.utls?.fingerprint || 'chrome';
-  }
-
-  const normalized = normalizeProxy(proxy);
-  set.add(JSON.stringify(normalized));
-
-  try {
-    if (proxyType === 'hysteria' || proxyType === 'shadowquic') {
-      const serverPart = server.includes(':') && !server.startsWith('[') ? `[${server}]` : server;
-      const params = new URLSearchParams({
-        protocol: proxy.protocol || 'udp',
-        auth: proxy.auth_str || '',
-        peer: proxy.sni,
-        insecure: proxy['skip-cert-verify'] ? '1' : '0',
-        upmbps: proxy.up || '',
-        downmbps: proxy.down || '',
-        alpn: proxy.alpn?.[0] || 'h3'
-      });
-      let remark = proxy.sni || server;
-      if (portRange) remark += ` (端口跳跃:${portRange})`;
-      const link = `hysteria://${serverPart}:${port}?${params.toString()}#${remark}`;
-      base64Links.push(link);
-    } else if (proxyType === 'hysteria2') {
-      const serverPart = server.includes(':') && !server.startsWith('[') ? `[${server}]` : server;
-      const authPart = proxy.password ? `${encodeURIComponent(proxy.password)}@` : '';
-      const params = new URLSearchParams({
-        insecure: proxy['skip-cert-verify'] ? '1' : '0',
-        sni: proxy.sni || ''
-      });
-      let remark = proxy.sni || server;
-      if (portRange) remark += ` (端口跳跃:${portRange})`;
-      const link = `hysteria2://${authPart}${serverPart}:${port}?${params.toString()}#${remark}`;
-      base64Links.push(link);
-    }
-  } catch (e) {
-    console.warn(`singbox-full base64 生成失败 (${proxyType}): ${e.message}`);
-  }
-}
-
-function processSingbox(data, set, base64Links) {
-  const ob = data.outbounds?.[0];
-  if (!ob || ob.type !== 'hysteria') return;
-  const tls = ob.tls || {};
-  const proxy = {
-    type: 'hysteria',
-    server: ob.server,
-    port: ob.server_port,
-    auth_str: ob.auth_str,
-    up: ob.up_mbps,
-    down: ob.down_mbps,
-    'fast-open': true,
-    protocol: 'udp',
-    sni: tls.server_name,
-    'skip-cert-verify': tls.insecure ?? true,
-    alpn: tls.alpn?.[0] ? [tls.alpn[0]] : ['h3']
-  };
-  set.add(JSON.stringify(proxy));
-
-  try {
-    const params = new URLSearchParams({
-      protocol: proxy.protocol,
-      auth: proxy.auth_str,
-      peer: proxy.sni,
-      insecure: proxy['skip-cert-verify'] ? '1' : '0',
-      upmbps: proxy.up || '',
-      downmbps: proxy.down || '',
-      alpn: proxy.alpn[0] || 'h3'
-    });
-    const link = `hysteria://${proxy.server}:${proxy.port}?${params.toString()}#${proxy.sni || proxy.server}`;
-    base64Links.push(link);
-  } catch (e) {
-    console.warn('singbox hysteria base64 链接生成失败:', e.message);
-  }
-}
-
 function processXray(data, set, base64Links) {
   const ob = data.outbounds?.[0];
   if (!ob || !['vless', 'vmess'].includes(ob.protocol)) return;
@@ -510,6 +320,7 @@ function processXray(data, set, base64Links) {
     }
   }
 
+  // 处理 xhttp → 转换为 httpupgrade
   let transportOpts = {};
   if (network === 'xhttp' || stream.xhttpSettings) {
     network = 'httpupgrade';
@@ -600,12 +411,50 @@ function processXray(data, set, base64Links) {
   }
 }
 
+function processSingbox(data, set, base64Links) {
+  const ob = data.outbounds?.[0];
+  if (!ob || ob.type !== 'hysteria') return;
+  const tls = ob.tls || {};
+  const proxy = {
+    type: 'hysteria',
+    server: ob.server,
+    port: ob.server_port,
+    auth_str: ob.auth_str,
+    up: ob.up_mbps,
+    down: ob.down_mbps,
+    'fast-open': true,
+    protocol: 'udp',
+    sni: tls.server_name,
+    'skip-cert-verify': tls.insecure ?? true,
+    alpn: tls.alpn?.[0] ? [tls.alpn[0]] : ['h3']
+  };
+  set.add(JSON.stringify(proxy));
+
+  try {
+    const params = new URLSearchParams({
+      protocol: proxy.protocol,
+      auth: proxy.auth_str,
+      peer: proxy.sni,
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      upmbps: proxy.up || '',
+      downmbps: proxy.down || '',
+      alpn: proxy.alpn[0] || 'h3'
+    });
+    const link = `hysteria://${proxy.server}:${proxy.port}?${params.toString()}#${proxy.sni || proxy.server}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('singbox hysteria base64 链接生成失败:', e.message);
+  }
+}
+
 function processClash(data, set, base64Links) {
   const proxies = data.proxies || [];
   for (const p of proxies) {
     if (!p || typeof p !== 'object') continue;
     const dedup = { ...p };
     delete dedup.name;
+
+    const remark = p.name || `${p.type}-${p.server || '未知'}`;
 
     set.add(JSON.stringify(dedup));
 
@@ -614,7 +463,7 @@ function processClash(data, set, base64Links) {
       if (p.type === 'vmess') {
         const vmessObj = {
           v: '2',
-          ps: p.name || `${p.type}-${p.server || '未知'}`,
+          ps: remark,
           add: p.server,
           port: p.port,
           id: p.uuid,
@@ -637,7 +486,7 @@ function processClash(data, set, base64Links) {
           sni: p.servername || '',
           fp: p['client-fingerprint'] || 'chrome'
         });
-        link = `vless://${p.uuid}@${p.server}:${p.port}?${params.toString()}#${p.name || `${p.type}-${p.server || '未知'}`}`;
+        link = `vless://${p.uuid}@${p.server}:${p.port}?${params.toString()}#${remark}`;
       } else if (p.type === 'hysteria') {
         const params = new URLSearchParams({
           auth: p.auth_str || '',
@@ -647,14 +496,14 @@ function processClash(data, set, base64Links) {
           downmbps: p.down || '',
           alpn: (p.alpn?.[0] || 'h3')
         });
-        link = `hysteria://${p.server}:${p.port}?${params.toString()}#${p.name || `${p.输入}-${p.server || '未知'}`}`;
+        link = `hysteria://${p.server}:${p.port}?${params.toString()}#${remark}`;
       } else if (p.type === 'hysteria2') {
         const authPart = p.password ? `${encodeURIComponent(p.password)}@` : '';
         const params = new URLSearchParams({
           insecure: p['skip-cert-verify'] ? '1' : '0',
           sni: p.sni || ''
         });
-        link = `hysteria2://${authPart}${p.server}:${p.port}?${params.toString()}#${p.name || `${p.输入}-${p.server || '未知'}`}`;
+        link = `hysteria2://${authPart}${p.server}:${p.port}?${params.toString()}#${remark}`;
       }
       if (link) base64Links.push(link);
     } catch (e) {
