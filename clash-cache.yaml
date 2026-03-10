@@ -38,7 +38,7 @@ proxies:
     alpn:
       - h3
     portRange: '11000'
-    name: HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com) 跳跃端口:11000
+    name: 2001:bc8:32d7:17b::2:11000 (apple.com) 跳跃端口:11000
   - type: hysteria2
     server: 2001:bc8:32d7:17b::8
     port: 22000
@@ -49,7 +49,7 @@ proxies:
     alpn:
       - h3
     portRange: '22000'
-    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com) 跳跃端口:22000
+    name: 2001:bc8:32d7:17b::8:22000 (apple.com) 跳跃端口:22000
   - type: hysteria2
     server: 2001:bc8:32d7:302::11
     port: 20088
@@ -60,116 +60,37 @@ proxies:
     alpn:
       - h3
     portRange: '20088'
-    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com) 跳跃端口:20088
-  - type: vless
-    server: 2001:bc8:32d7:302::13
-    port: 34324
-    uuid: 26c462ba-a90c-4814-9d7c-a629bc0bdb5c
-    network: tcp
-    tls: true
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: dash.cloudflare.com
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    encryption: none
-    flow: xtls-rprx-vision
-    reality-opts:
-      public-key: pHn5CHa2P6-lNBIkTOI3zJQN19jfNFkXxGFuyefpP0M
-      short-id: ''
-    name: VLESS [IPv6] • 2001:bc8:32d7:302::13
-  - type: vmess
-    server: 104.21.238.35
-    port: 2086
-    uuid: ee420fda-efb7-48a8-9249-8987e36ebd9e
-    network: ws
-    tls: false
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: 104.21.238.35
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    ws-opts:
-      path: github.com/Alvin9999
-      headers:
-        Host: ip29.9447609.xyz
-    alterId: 0
-    cipher: auto
-    name: VMESS • 104.21.238.35
-  - type: vmess
-    server: 2001:bc8:32d7:302::10
-    port: 44579
-    uuid: 8e34e170-13ae-4892-9d20-05962acc9f84
-    network: ws
-    tls: false
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: 2001:bc8:32d7:302::10
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    ws-opts:
-      path: /
-      headers:
-        Host: 2001:bc8:32d7:302::10
-    alterId: 0
-    cipher: auto
-    name: VMESS [IPv6] • 2001:bc8:32d7:302::10
-  - type: vmess
-    server: 104.21.238.35
-    port: 2086
-    uuid: ee420fda-efb7-48a8-9249-8987e36ebd9e
-    network: ws
-    tls: false
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: 104.21.238.35
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    ws-opts:
-      path: github.com/Alvin9999
-      headers:
-        Host: ip19.9447609.xyz
-    alterId: 0
-    cipher: auto
-    name: VMESS • 104.21.238.35
+    name: 2001:bc8:32d7:302::11:20088 (apple.com) 跳跃端口:20088
   - type: hysteria
     server: 5.83.129.90
-    port: 54177
-    auth_str: dongtaiwang.com
-    up: 11
-    down: 55
-    fast-open: true
-    protocol: udp
-    sni: bing.com
+    port: 443
     skip-cert-verify: true
+    sni: bing.com
+    fast-open: true
     alpn:
       - h3
-    name: HYSTERIA • 5.83.129.90 (bing.com)
+    auth_str: ''
+    up: 11
+    down: 55
+    protocol: udp
+    tls: true
+    client-fingerprint: chrome
+    name: 5.83.129.90 (bing.com)
   - type: hysteria
     server: 45.150.65.154
-    port: 47119
-    auth_str: dongtaiwang.com
-    up: 11
-    down: 55
-    fast-open: true
-    protocol: udp
-    sni: bing.com
+    port: 443
     skip-cert-verify: true
+    sni: bing.com
+    fast-open: true
     alpn:
       - h3
-    name: HYSTERIA • 45.150.65.154 (bing.com)
+    auth_str: ''
+    up: 11
+    down: 55
+    protocol: udp
+    tls: true
+    client-fingerprint: chrome
+    name: 45.150.65.154 (bing.com)
   - type: hysteria
     server: 2001:bc8:32d7:17b::2
     port: 11000
@@ -181,7 +102,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
+    name: 2001:bc8:32d7:17b::2:11000 (apple.com)
   - server: 2001:bc8:32d7:302::16
     port: 34997
     type: tuic
@@ -194,7 +115,7 @@ proxies:
     reduce-rtt: true
     udp-relay-mode: native
     congestion-controller: bbr
-    name: TUIC [IPv6] • 2001:bc8:32d7:302::16 (bing.com)
+    name: 2001:bc8:32d7:302::16:34997 (bing.com)
   - type: hysteria2
     server: 2001:bc8:32d7:302::17
     port: 20088
@@ -206,7 +127,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::17 (apple.com)
+    name: 2001:bc8:32d7:302::17:20088 (apple.com)
   - type: hysteria
     server: 5.83.129.143
     port: 26691
@@ -218,7 +139,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: HYSTERIA • 5.83.129.143 (apple.com)
+    name: 5.83.129.143:26691 (apple.com)
   - type: hysteria
     server: 2a14:7584:d099::a
     port: 26691
@@ -230,7 +151,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: HYSTERIA [IPv6] • 2a14:7584:d099::a (apple.com)
+    name: 2a14:7584:d099::a:26691 (apple.com)
   - server: ip1.758733.xyz
     port: 10088
     type: tuic
@@ -243,7 +164,7 @@ proxies:
     udp-relay-mode: native
     skip-cert-verify: true
     congestion-controller: bbr
-    name: TUIC • ip1.758733.xyz (apple.com)
+    name: ip1.758733.xyz:10088 (apple.com)
   - type: hysteria
     server: ip1.758733.xyz
     port: 23008
@@ -255,7 +176,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: HYSTERIA • ip1.758733.xyz (apple.com)
+    name: ip1.758733.xyz:23008 (apple.com)
   - type: vless
     server: 2001:bc8:32d7:181::3
     port: 17401
@@ -279,7 +200,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: VLESS [IPv6] • 2001:bc8:32d7:181::3
+    name: 2001:bc8:32d7:181::3:17401
   - type: vless
     server: 2001:bc8:32d7:181::4
     port: 17401
@@ -303,7 +224,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: VLESS [IPv6] • 2001:bc8:32d7:181::4
+    name: 2001:bc8:32d7:181::4:17401
   - type: vless
     server: 2001:bc8:32d7:181::5
     port: 17401
@@ -327,7 +248,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: VLESS [IPv6] • 2001:bc8:32d7:181::5
+    name: 2001:bc8:32d7:181::5:17401
   - type: anytls
     server: 45.221.98.14
     port: 59901
@@ -341,7 +262,7 @@ proxies:
       - h2
       - http/1.1
     skip-cert-verify: true
-    name: ANYTLS • 45.221.98.14
+    name: 45.221.98.14:59901
   - type: vless
     server: 2001:bc8:32d7:181::2
     port: 17401
@@ -365,14 +286,14 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: VLESS [IPv6] • 2001:bc8:32d7:181::2
+    name: 2001:bc8:32d7:181::2:17401
   - type: mieru
     server: 157.254.223.48
     port: 33990
     transport: TCP
     username: dongtaiwang.com
     password: dongtaiwang.com
-    name: MIERU • 157.254.223.48
+    name: 157.254.223.48:33990
   - type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -384,7 +305,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
+    name: 2a14:7584:d097::a:54177 (apple.com)
   - type: hysteria
     server: 5.83.129.153
     port: 20088
@@ -398,7 +319,7 @@ proxies:
     alpn:
       - h3
     portRange: '20088'
-    name: HYSTERIA • 5.83.129.153 (apple.com) 跳跃端口:20088
+    name: 5.83.129.153:20088 (apple.com) 跳跃端口:20088
   - type: hysteria
     server: 5.83.129.90
     port: 54177
@@ -412,7 +333,7 @@ proxies:
     alpn:
       - h3
     portRange: '54177'
-    name: HYSTERIA • 5.83.129.90 (apple.com) 跳跃端口:54177
+    name: 5.83.129.90:54177 (apple.com) 跳跃端口:54177
   - type: hysteria2
     server: 89.144.35.34
     port: 43608
@@ -423,7 +344,7 @@ proxies:
     alpn:
       - h3
     portRange: '43608'
-    name: HYSTERIA2 • 89.144.35.34 (apple.com) 跳跃端口:43608
+    name: 89.144.35.34:43608 (apple.com) 跳跃端口:43608
   - type: hysteria2
     server: 157.254.223.24
     port: 30088
@@ -434,7 +355,7 @@ proxies:
     alpn:
       - h3
     portRange: 30088,31000-32000
-    name: HYSTERIA2 • 157.254.223.24 (apple.com) 跳跃端口:30088,31000-32000
+    name: 157.254.223.24:30088 (apple.com) 跳跃端口:30088,31000-32000
   - type: hysteria2
     server: 62.210.124.146
     port: 22000
@@ -445,7 +366,7 @@ proxies:
     alpn:
       - h3
     portRange: '22000'
-    name: HYSTERIA2 • 62.210.124.146 (www.microsoft.com) 跳跃端口:22000
+    name: 62.210.124.146:22000 (www.microsoft.com) 跳跃端口:22000
   - type: hysteria2
     server: 2a14:7584:d04a::a
     port: 50022
@@ -456,174 +377,143 @@ proxies:
     alpn:
       - h3
     portRange: '50022'
-    name: HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com) 跳跃端口:50022
-  - type: vless
-    server: fan3.394615.xyz
-    port: 34500
-    uuid: 8b66e552-e89d-4c4f-bb5a-e3d37bf151b8
-    network: httpupgrade
-    tls: true
+    name: 2a14:7584:d04a::a:50022 (apple.com) 跳跃端口:50022
+  - type: hysteria
+    server: 157.254.223.65
+    port: 1443
     skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: www.lovelive-anime.jp
-    udp: true
+    sni: www.yahoo.com
+    fast-open: true
     alpn:
       - h3
-      - http/1.1
-    packet_encoding: xudp
-    httpupgrade-opts:
-      path: /ZTwhzkrWeLnk5ARp8SsoVlVMGn6cSDq8CElbAniRQ9dMR
-      host: www.lovelive-anime.jp
+    portRange: '1443'
+    auth_str: dongtaiwang.com
+    up: ''
+    down: ''
+    protocol: udp
+    tls: true
+    client-fingerprint: chrome
+    name: 157.254.223.65:1443 (www.yahoo.com) 跳跃端口:1443
+  - type: hysteria
+    server: fan2.394615.xyz
+    port: 1443
+    skip-cert-verify: true
+    sni: www.yahoo.com
+    fast-open: true
+    alpn:
+      - h3
+    portRange: '1443'
+    auth_str: dongtaiwang.com
+    up: ''
+    down: ''
+    protocol: udp
+    tls: true
+    client-fingerprint: chrome
+    name: fan2.394615.xyz:1443 (www.yahoo.com) 跳跃端口:1443
+  - type: vless
+    server: 157.254.223.44
+    port: 443
+    skip-cert-verify: true
+    sni: itunes.apple.com
+    fast-open: true
+    alpn:
+      - h3
+    reality-opts:
+      public-key: '-hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA'
+      short-id: d557c6895d014075
+    uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
     encryption: none
-    reality-opts:
-      public-key: Yg6kOijRv1IbFcwhY0WmwJ8KW7YTtux4QlQhekEzNEQ
-      short-id: 3a1381d1b2cc9e19
-    name: VLESS • fan3.394615.xyz
-  - type: vless
-    server: 163.172.116.154
-    port: 34598
-    uuid: 51408440-3dda-407d-8fe0-bf0bf13e73b3
-    network: httpupgrade
+    network: tcp
     tls: true
-    skip-cert-verify: true
     client-fingerprint: chrome
-    servername: www.pixiv.co.jp
-    udp: true
+    name: 157.254.223.44 (itunes.apple.com)
+  - type: vless
+    server: 2a14:7583:295c::a
+    port: 443
+    skip-cert-verify: true
+    sni: itunes.apple.com
+    fast-open: true
     alpn:
       - h3
-      - http/1.1
-    packet_encoding: xudp
-    httpupgrade-opts:
-      path: github.com/Alvin9999
-      host: www.pixiv.co.jp
+    reality-opts:
+      public-key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
+      short-id: 8346964417a2552b
+    uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
     encryption: none
-    reality-opts:
-      public-key: '-ZbYVgqnVfRobtjvfnNJBTO3bnQ2c3r4v8jyGRD1VHI'
-      short-id: 4a8c287920a355b7
-    name: VLESS • 163.172.116.154
-  - type: vless
-    server: 89.144.35.230
-    port: 54582
-    uuid: 5cfc52bc-e701-4160-89df-930a0c040576
-    network: httpupgrade
+    network: tcp
     tls: true
-    skip-cert-verify: true
     client-fingerprint: chrome
-    servername: apple.com
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    httpupgrade-opts:
-      path: 5cfc52bc-e701-4160-89df-930a0c040576-xh
-      host: apple.com
-    encryption: mlkem768x25519plus.native.0rtt.0Rs8kQdBBMcc2SywqxkhzNVVzyIt_OZaYDNplvTPJKOwxAumLyogdAmy-lLJdlpIerxoMMZs2dlOCoI2H_igvKVg-1lc8Pge2EY-eki2tMPCzEhec7hFnVoDRydhygEXaAaebBpipjMntKVHqLJzwKomw5d-O0kAGaiF5nYPi-SU3NEBAXUPEWi9nMZeOEYPzzthXAcIVWw7yDlrGrOJQSVRyNmcUppT9hAwoNMPe2O5z0IN3rOdd7c3soKJ8oU6gwY38ynGbMEXGQqIBRWeYPYaptddWUZP28tus9xTwKQkIfeWWjsGOZcqGJMRRPevlIxRbfcAAJuCeTiz4yErDFsoMBYdzQl3BzIIcimWDEQIXZJCR6yyLSyJj8Fva7AgcAeg5BZs6_ZQdQFZfZpwjrwmp1kbdakCf-AzR9zBrOtR35IElzgBsgavbgZVY4B1THZ7DvFQVAq3hupm6_gaAaxg42qsleKyzPEs00VY-8DLRjauukNzTigjhfqom8liJnp8aALEnXhu7rdPIWuM91WEz4uTmbxBvARzuUAe7LceQtqiaHmebrp8N0mOKsSyh2PDVAmbWtjHCXJeDhhCMPUYXuiwUVICeUZV1TZxjmZ_xFFL8JZ8vAtewzs9AkiLXJaHNdIBbQRW5qx5BQfMM5vKjYhiXCxJugxu0zq57ksRxsF68oSW0jWbHXaF9EY91ABSZystAjitddC6QcGOUtqn6giKSVs2RXwEeNqZEsEELahYcPtM_PmTlXG-3pFfXalmcpC6bcVl14JLgkykbEtDy3qhBNaUa4osqDu4g8EgRVVuJlCFEcOW-qsQZedzkuhXa2UrUSgNBfVMYXCq16iiD6WKyVVww8CKj_WsPlyNrKIdu8RKENo_HZHN5gPEkgIGWvdpUVyJVbMHlGQ8wVKFDMgn3TyCmCx2_dXM0_eQDqjI3mXAonbAoFttwDhfbpcK4FjPWSkHZrMfAQU1QeodFxqBvBe8MMw1bLSu_mE8beORjEpmtWFr08O0zeUqBkKdOBwahQnB7mBx17JnjYSH0KZT2KF29SiBudHKz7mbThIxhglQH1hSfmSWs0k_d1uCR9Qvylsns9a3j4uwcvUFtZam7iVk2HxG-vMOihIYYomSALwNU0IN01Z3qddbW5uDdtIE0yA2fVVOxjMKVMeYybtarviaCdfNmvyJ4MrJUzoS82cp6TuOYgMZ8hosGMOH1xTMCZIMc9mf4UCRJqA3cRMH0PFj_ugQ62ohDld1dyZADdQx2igtUoYnjLKcIHVdTOp36TqaofugLKwF_aJSUmhi_Kheaju28kZskBaebUqT9VPBqcqYozdvXeeG8hUT6eiMAKSML4jHIJeYOpjOHhYNUEm9b4ATJOwstyQgQmE-P3teIQeYYRcimLpjCTczISEQJcUg68e3CgA8GCoLIaZVsmYKDMxbPJu7bWygU5bBH0Gc6sqf7uNy3kI0nEtAGNAUs6y9TFROQ2BgNeSMucRVNXZ1ePpJs8mx_xRn2ODAn0hImPlLiuOHniCPE_zni6TSyL8Typ11OvyVBIrIrAxWZwREOPs5lXV17t8
-    flow: xtls-rprx-vision
-    reality-opts:
-      public-key: kfw5DgkyKiovC3dzb-o2PUYnZPnbYvbx2IwERUv9czY
-      short-id: 225e2cc8
-    name: VLESS • 89.144.35.230
-  - type: vless
-    server: 2a14:7584:d097::a
-    port: 11330
-    uuid: 53d74aab-6471-4c1b-ace7-fac837d1bfbd
-    network: httpupgrade
-    tls: true
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: toarumajutsunoindex.fandom.com
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    httpupgrade-opts:
-      path: /alvin9999.com
-      host: toarumajutsunoindex.fandom.com
-    encryption: none
-    reality-opts:
-      public-key: 3HaD5Ztk3X4gi3aJLVesV6KSJTW2YGG-hvGD3ZumJkE
-      short-id: fa789b2f5ff56959
-    name: VLESS [IPv6] • 2a14:7584:d097::a
+    name: 2a14:7583:295c::a (itunes.apple.com)
 proxy-groups:
   - name: 节点选择
     type: select
     proxies:
       - 自动选择
       - DIRECT
-      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com) 跳跃端口:11000
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com) 跳跃端口:22000
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com) 跳跃端口:20088
-      - VLESS [IPv6] • 2001:bc8:32d7:302::13
-      - VMESS • 104.21.238.35
-      - VMESS [IPv6] • 2001:bc8:32d7:302::10
-      - VMESS • 104.21.238.35
-      - HYSTERIA • 5.83.129.90 (bing.com)
-      - HYSTERIA • 45.150.65.154 (bing.com)
-      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
-      - TUIC [IPv6] • 2001:bc8:32d7:302::16 (bing.com)
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::17 (apple.com)
-      - HYSTERIA • 5.83.129.143 (apple.com)
-      - HYSTERIA [IPv6] • 2a14:7584:d099::a (apple.com)
-      - TUIC • ip1.758733.xyz (apple.com)
-      - HYSTERIA • ip1.758733.xyz (apple.com)
-      - VLESS [IPv6] • 2001:bc8:32d7:181::3
-      - VLESS [IPv6] • 2001:bc8:32d7:181::4
-      - VLESS [IPv6] • 2001:bc8:32d7:181::5
-      - ANYTLS • 45.221.98.14
-      - VLESS [IPv6] • 2001:bc8:32d7:181::2
-      - MIERU • 157.254.223.48
-      - HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
-      - HYSTERIA • 5.83.129.153 (apple.com) 跳跃端口:20088
-      - HYSTERIA • 5.83.129.90 (apple.com) 跳跃端口:54177
-      - HYSTERIA2 • 89.144.35.34 (apple.com) 跳跃端口:43608
-      - HYSTERIA2 • 157.254.223.24 (apple.com) 跳跃端口:30088,31000-32000
-      - HYSTERIA2 • 62.210.124.146 (www.microsoft.com) 跳跃端口:22000
-      - HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com) 跳跃端口:50022
-      - VLESS • fan3.394615.xyz
-      - VLESS • 163.172.116.154
-      - VLESS • 89.144.35.230
-      - VLESS [IPv6] • 2a14:7584:d097::a
+      - 2001:bc8:32d7:17b::2:11000 (apple.com) 跳跃端口:11000
+      - 2001:bc8:32d7:17b::8:22000 (apple.com) 跳跃端口:22000
+      - 2001:bc8:32d7:302::11:20088 (apple.com) 跳跃端口:20088
+      - 5.83.129.90 (bing.com)
+      - 45.150.65.154 (bing.com)
+      - 2001:bc8:32d7:17b::2:11000 (apple.com)
+      - 2001:bc8:32d7:302::16:34997 (bing.com)
+      - 2001:bc8:32d7:302::17:20088 (apple.com)
+      - 5.83.129.143:26691 (apple.com)
+      - 2a14:7584:d099::a:26691 (apple.com)
+      - ip1.758733.xyz:10088 (apple.com)
+      - ip1.758733.xyz:23008 (apple.com)
+      - 2001:bc8:32d7:181::3:17401
+      - 2001:bc8:32d7:181::4:17401
+      - 2001:bc8:32d7:181::5:17401
+      - 45.221.98.14:59901
+      - 2001:bc8:32d7:181::2:17401
+      - 157.254.223.48:33990
+      - 2a14:7584:d097::a:54177 (apple.com)
+      - 5.83.129.153:20088 (apple.com) 跳跃端口:20088
+      - 5.83.129.90:54177 (apple.com) 跳跃端口:54177
+      - 89.144.35.34:43608 (apple.com) 跳跃端口:43608
+      - 157.254.223.24:30088 (apple.com) 跳跃端口:30088,31000-32000
+      - 62.210.124.146:22000 (www.microsoft.com) 跳跃端口:22000
+      - 2a14:7584:d04a::a:50022 (apple.com) 跳跃端口:50022
+      - 157.254.223.65:1443 (www.yahoo.com) 跳跃端口:1443
+      - fan2.394615.xyz:1443 (www.yahoo.com) 跳跃端口:1443
+      - 157.254.223.44 (itunes.apple.com)
+      - 2a14:7583:295c::a (itunes.apple.com)
   - name: 自动选择
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
     proxies:
-      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com) 跳跃端口:11000
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:17b::8 (apple.com) 跳跃端口:22000
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::11 (apple.com) 跳跃端口:20088
-      - VLESS [IPv6] • 2001:bc8:32d7:302::13
-      - VMESS • 104.21.238.35
-      - VMESS [IPv6] • 2001:bc8:32d7:302::10
-      - VMESS • 104.21.238.35
-      - HYSTERIA • 5.83.129.90 (bing.com)
-      - HYSTERIA • 45.150.65.154 (bing.com)
-      - HYSTERIA [IPv6] • 2001:bc8:32d7:17b::2 (apple.com)
-      - TUIC [IPv6] • 2001:bc8:32d7:302::16 (bing.com)
-      - HYSTERIA2 [IPv6] • 2001:bc8:32d7:302::17 (apple.com)
-      - HYSTERIA • 5.83.129.143 (apple.com)
-      - HYSTERIA [IPv6] • 2a14:7584:d099::a (apple.com)
-      - TUIC • ip1.758733.xyz (apple.com)
-      - HYSTERIA • ip1.758733.xyz (apple.com)
-      - VLESS [IPv6] • 2001:bc8:32d7:181::3
-      - VLESS [IPv6] • 2001:bc8:32d7:181::4
-      - VLESS [IPv6] • 2001:bc8:32d7:181::5
-      - ANYTLS • 45.221.98.14
-      - VLESS [IPv6] • 2001:bc8:32d7:181::2
-      - MIERU • 157.254.223.48
-      - HYSTERIA [IPv6] • 2a14:7584:d097::a (apple.com)
-      - HYSTERIA • 5.83.129.153 (apple.com) 跳跃端口:20088
-      - HYSTERIA • 5.83.129.90 (apple.com) 跳跃端口:54177
-      - HYSTERIA2 • 89.144.35.34 (apple.com) 跳跃端口:43608
-      - HYSTERIA2 • 157.254.223.24 (apple.com) 跳跃端口:30088,31000-32000
-      - HYSTERIA2 • 62.210.124.146 (www.microsoft.com) 跳跃端口:22000
-      - HYSTERIA2 [IPv6] • 2a14:7584:d04a::a (apple.com) 跳跃端口:50022
-      - VLESS • fan3.394615.xyz
-      - VLESS • 163.172.116.154
-      - VLESS • 89.144.35.230
-      - VLESS [IPv6] • 2a14:7584:d097::a
+      - 2001:bc8:32d7:17b::2:11000 (apple.com) 跳跃端口:11000
+      - 2001:bc8:32d7:17b::8:22000 (apple.com) 跳跃端口:22000
+      - 2001:bc8:32d7:302::11:20088 (apple.com) 跳跃端口:20088
+      - 5.83.129.90 (bing.com)
+      - 45.150.65.154 (bing.com)
+      - 2001:bc8:32d7:17b::2:11000 (apple.com)
+      - 2001:bc8:32d7:302::16:34997 (bing.com)
+      - 2001:bc8:32d7:302::17:20088 (apple.com)
+      - 5.83.129.143:26691 (apple.com)
+      - 2a14:7584:d099::a:26691 (apple.com)
+      - ip1.758733.xyz:10088 (apple.com)
+      - ip1.758733.xyz:23008 (apple.com)
+      - 2001:bc8:32d7:181::3:17401
+      - 2001:bc8:32d7:181::4:17401
+      - 2001:bc8:32d7:181::5:17401
+      - 45.221.98.14:59901
+      - 2001:bc8:32d7:181::2:17401
+      - 157.254.223.48:33990
+      - 2a14:7584:d097::a:54177 (apple.com)
+      - 5.83.129.153:20088 (apple.com) 跳跃端口:20088
+      - 5.83.129.90:54177 (apple.com) 跳跃端口:54177
+      - 89.144.35.34:43608 (apple.com) 跳跃端口:43608
+      - 157.254.223.24:30088 (apple.com) 跳跃端口:30088,31000-32000
+      - 62.210.124.146:22000 (www.microsoft.com) 跳跃端口:22000
+      - 2a14:7584:d04a::a:50022 (apple.com) 跳跃端口:50022
+      - 157.254.223.65:1443 (www.yahoo.com) 跳跃端口:1443
+      - fan2.394615.xyz:1443 (www.yahoo.com) 跳跃端口:1443
+      - 157.254.223.44 (itunes.apple.com)
+      - 2a14:7583:295c::a (itunes.apple.com)
 rules:
   - DOMAIN,clash.razord.top,DIRECT
   - DOMAIN,yacd.haishan.me,DIRECT
