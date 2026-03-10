@@ -58,10 +58,13 @@ async function updateCache() {
   for (let i = 0; i < proxyStrs.length; i++) {
     const obj = JSON.parse(proxyStrs[i]);
     const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
-    let name = `${obj.type.toUpperCase()}${isIPv6 ? ' [IPv6]' : ''} • ${obj.server || '未知'}`;
+    
+    // 修改此处：名称只显示地址 + 端口跳跃（如果有），不显示类型
+    let name = obj.server || '未知';
+    if (isIPv6) name = `[${name}]`;  // IPv6 地址加方括号，更规范
+    if (obj.portRange) name += ` :${obj.portRange}`;
     if (obj.sni && obj.sni !== obj.server) name += ` (${obj.sni})`;
-    if (obj.portRange) name += ` 跳跃端口:${obj.portRange}`;
-    if (obj.transport && obj.transport.type === 'xhttp') name += ' [xhttp→httpupgrade]';
+
     obj.name = name.trim();
     proxyObjects.push(obj);
     proxyNames.push(obj.name);
