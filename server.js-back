@@ -59,11 +59,10 @@ async function updateCache() {
     const obj = JSON.parse(proxyStrs[i]);
     const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
     let name = `${obj.type.toUpperCase()}${isIPv6 ? ' [IPv6]' : ''} • ${obj.server || '未知'}`;
-    if (obj.portRange) {
-      name += ` (跳跃端口: ${obj.portRange})`;  // 明显标注跳跃范围
-    }
     if (obj.sni && obj.sni !== obj.server) name += ` (${obj.sni})`;
-    obj.name = name;
+    if (obj.portRange) name += ` 跳跃端口:${obj.portRange}`;
+    if (obj.transport && obj.transport.type === 'xhttp') name += ' [xhttp→httpupgrade]';
+    obj.name = name.trim();
     proxyObjects.push(obj);
     proxyNames.push(obj.name);
   }
@@ -159,41 +158,37 @@ async function uploadToGitHub(content, filePath, commitMessagePrefix) {
   }
 }
 
-// ==================== 增强版解析函数：支持端口范围 ====================
 function parseServerPort(serverStr, defaultPort = 443) {
   if (!serverStr) return { server: '', port: defaultPort, portRange: null };
 
   serverStr = serverStr.trim();
 
-  // 支持 [ipv6]:port-range 格式，如 [2001:db8::1]:20000-30000
-  const bracketRangeMatch = serverStr.match(/^\[([^\]]+)\]:((\d+)(?:-\d+)?(?:,\d+(?:-\d+)?)*)$/);
-  if (bracketRangeMatch) {
-    const ip = bracketRangeMatch[1];
-    const rangeStr = bracketRangeMatch[2];
-    const firstPort = Number(rangeStr.split(/[-,]/)[0]);
-    return { server: ip, port: firstPort || defaultPort, portRange: rangeStr };
+  const bracketRange = serverStr.match(/^\[([^\]]+)\]:((\d+)(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*)$/);
+  if (bracketRange) {
+    const ip = bracketRange[1];
+    const range = bracketRange[2];
+    const firstPort = Number(range.split(/[-,]/)[0].trim());
+    return { server: ip, port: isNaN(firstPort) ? defaultPort : firstPort, portRange: range };
   }
 
-  // 支持 domain:port-range，如 example.com:20000-50000
-  const rangeMatch = serverStr.match(/^([^:]+):((\d+)(?:-\d+)?(?:,\d+(?:-\d+)?)*)$/);
-  if (rangeMatch) {
-    const host = rangeMatch[1];
-    const rangeStr = rangeMatch[2];
-    const firstPort = Number(rangeStr.split(/[-,]/)[0]);
-    return { server: host, port: firstPort || defaultPort, portRange: rangeStr };
+  const hostRange = serverStr.match(/^([^:]+):((\d+)(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*)$/);
+  if (hostRange) {
+    const host = hostRange[1];
+    const range = hostRange[2];
+    const firstPort = Number(range.split(/[-,]/)[0].trim());
+    return { server: host, port: isNaN(firstPort) ? defaultPort : firstPort, portRange: range };
   }
 
-  // 支持 [ipv6]:单一端口 或 domain:单一端口（原逻辑）
-  const bracketMatch = serverStr.match(/^\[([^\]]+)\]:(\d+)$/);
-  if (bracketMatch) {
-    return { server: bracketMatch[1], port: Number(bracketMatch[2]), portRange: null };
+  const bracketSingle = serverStr.match(/^\[([^\]]+)\]:(\d+)$/);
+  if (bracketSingle) {
+    return { server: bracketSingle[1], port: Number(bracketSingle[2]), portRange: null };
   }
 
   const lastColon = serverStr.lastIndexOf(':');
   if (lastColon > serverStr.lastIndexOf(']') && lastColon !== -1) {
-    const possiblePort = serverStr.slice(lastColon + 1);
+    const possiblePort = serverStr.slice(lastColon + 1).trim();
     if (/^\d+$/.test(possiblePort)) {
-      return { server: serverStr.slice(0, lastColon), port: Number(possiblePort), portRange: null };
+      return { server: serverStr.slice(0, lastColon).trim(), port: Number(possiblePort), portRange: null };
     }
   }
 
@@ -230,7 +225,7 @@ function processHysteria(data, set, base64Links) {
     sni: data.server_name || '',
     'skip-cert-verify': true,
     alpn: data.alpn ? [data.alpn] : ['h3'],
-    ...(portRange && { portRange })  // 记录范围（可选，在 Clash 中可忽略或用于备注）
+    ...(portRange && { portRange })
   };
   set.add(JSON.stringify(normalizeProxy(proxy)));
 
@@ -245,7 +240,9 @@ function processHysteria(data, set, base64Links) {
       downmbps: proxy.down || '',
       alpn: proxy.alpn[0] || 'h3'
     });
-    const link = `hysteria://${serverPart}:${port}?${params.toString()}#${proxy.sni || server}`;
+    let remark = proxy.sni || server;
+    if (portRange) remark += ` (端口跳跃: ${portRange})`;
+    const link = `hysteria://${serverPart}:${port}?${params.toString()}#${remark}`;
     base64Links.push(link);
   } catch (e) {
     console.warn('hysteria base64 链接生成失败:', e.message);
@@ -258,8 +255,11 @@ function processHysteria2(data, set, base64Links) {
 
   const tls = data.tls || {};
   let password = data.auth || data.password || data.auth_str || '';
-  if (typeof data.auth === 'object' && data.auth?.password) {
-    password = data.auth.password;
+  if (typeof data.auth === 'object' && data.auth?.password) password = data.auth.password;
+
+  let sni = tls.sni || tls.server_name || data.server_name || '';
+  if (!sni && !server.includes(':') && !/^\d{1,3}(\.\d{1,3}){3}$/.test(server)) {
+    sni = server;
   }
 
   const proxy = {
@@ -268,10 +268,10 @@ function processHysteria2(data, set, base64Links) {
     port: Number(port),
     password,
     'fast-open': true,
-    sni: tls.sni || server,
-    'skip-cert-verify': tls.insecure ?? true,
-    alpn: tls.alpn || ['h3'],
-    ...(portRange && { portRange })  // 保留跳跃信息
+    sni,
+    'skip-cert-verify': tls.insecure ?? tls.allowInsecure ?? true,
+    alpn: tls.alpn ? (Array.isArray(tls.alpn) ? tls.alpn : [tls.alpn]) : ['h3'],
+    ...(portRange && { portRange })
   };
   set.add(JSON.stringify(normalizeProxy(proxy)));
 
@@ -282,14 +282,14 @@ function processHysteria2(data, set, base64Links) {
       insecure: proxy['skip-cert-verify'] ? '1' : '0',
       sni: proxy.sni || ''
     });
-    const link = `hysteria2://${authPart}${serverPart}:${port}?${params.toString()}#${proxy.sni || server}${portRange ? ' (跳跃:' + portRange + ')' : ''}`;
+    let remark = proxy.sni || server;
+    if (portRange) remark += ` (端口跳跃: ${portRange})`;
+    const link = `hysteria2://${authPart}${serverPart}:${port}?${params.toString()}#${remark}`;
     base64Links.push(link);
   } catch (e) {
     console.warn('hysteria2 base64 链接生成失败:', e.message);
   }
 }
-
-// 其余函数保持不变（processXray, processSingbox, processClash）
 
 function processXray(data, set, base64Links) {
   const ob = data.outbounds?.[0];
@@ -301,7 +301,7 @@ function processXray(data, set, base64Links) {
 
   const server = vnext.address || '';
   const port = vnext.port || 443;
-  const network = stream.network || 'tcp';
+  let network = stream.network || 'tcp';
   const security = stream.security || 'none';
   const tls = security === 'tls' || security === 'reality';
   const reality = security === 'reality';
@@ -317,6 +317,25 @@ function processXray(data, set, base64Links) {
     }
   }
 
+  // 处理 xhttp → 转换为 httpupgrade
+  let transportOpts = {};
+  if (network === 'xhttp' || stream.xhttpSettings) {
+    network = 'httpupgrade';
+    transportOpts = {
+      path: stream.xhttpSettings?.path || '/',
+      host: stream.xhttpSettings?.host || sni || server
+    };
+  } else if (network === 'ws') {
+    const ws = stream.wsSettings || {};
+    transportOpts = {
+      path: ws.path || '/',
+      headers: { Host: ws.headers?.Host || sni || server }
+    };
+  } else if (network === 'grpc') {
+    const grpc = stream.grpcSettings || {};
+    transportOpts = { 'grpc-service-name': grpc.serviceName || '' };
+  }
+
   const proxy = {
     type: ob.protocol,
     server,
@@ -326,8 +345,11 @@ function processXray(data, set, base64Links) {
     tls,
     'skip-cert-verify': true,
     'client-fingerprint': fp,
-    servername: sni,
-    udp: true
+    servername: sni || server,
+    udp: true,
+    alpn: ['h3', 'http/1.1'],
+    packet_encoding: 'xudp',
+    ...(Object.keys(transportOpts).length > 0 && { [`${network}-opts`]: transportOpts })
   };
 
   if (ob.protocol === 'vmess') {
@@ -338,17 +360,6 @@ function processXray(data, set, base64Links) {
   }
   if (user.flow) proxy.flow = user.flow;
 
-  if (network === 'ws') {
-    const ws = stream.wsSettings || {};
-    proxy['ws-opts'] = {
-      path: ws.path || '/',
-      headers: { Host: ws.headers?.Host || sni || server }
-    };
-  }
-  if (network === 'grpc') {
-    const grpc = stream.grpcSettings || {};
-    proxy['grpc-opts'] = { 'grpc-service-name': grpc.serviceName || '' };
-  }
   if (reality) {
     proxy['reality-opts'] = { 'public-key': pbk, 'short-id': sid };
   }
@@ -365,10 +376,10 @@ function processXray(data, set, base64Links) {
         port: port,
         id: proxy.uuid,
         aid: proxy.alterId || 0,
-        net: network,
+        net: proxy.network,
         type: 'none',
-        host: proxy['ws-opts']?.headers?.Host || '',
-        path: proxy['ws-opts']?.path || '',
+        host: proxy[`${proxy.network}-opts`]?.headers?.Host || '',
+        path: proxy[`${proxy.network}-opts`]?.path || '',
         tls: proxy.tls ? 'tls' : '',
         sni: proxy.servername,
         alpn: '',
@@ -378,15 +389,18 @@ function processXray(data, set, base64Links) {
       link = `vmess://${encoded}`;
     } else if (proxy.type === 'vless') {
       const params = new URLSearchParams({
-        encryption: proxy.encryption,
+        encryption: proxy.encryption || 'none',
         security: proxy.tls ? (reality ? 'reality' : 'tls') : 'none',
         fp: proxy['client-fingerprint'],
-        type: network,
-        ...(network === 'ws' && { path: proxy['ws-opts']?.path || '/', host: proxy['ws-opts']?.headers?.Host || '' }),
+        type: proxy.network,
+        ...(proxy.network === 'ws' && { path: proxy['ws-opts']?.path || '/', host: proxy['ws-opts']?.headers?.Host || '' }),
+        ...(proxy.network === 'httpupgrade' && { path: proxy['httpupgrade-opts']?.path || '/', host: proxy['httpupgrade-opts']?.host || '' }),
         ...(reality && { 'pbk': pbk, 'sid': sid }),
         sni: proxy.servername
       });
-      link = `vless://${proxy.uuid}@${server}:${port}?${params.toString()}#${sni || server}`;
+      let remark = sni || server;
+      if (proxy.network === 'httpupgrade') remark += ' [xhttp compat]';
+      link = `vless://${proxy.uuid}@${server}:${port}?${params.toString()}#${remark}`;
     }
     if (link) base64Links.push(link);
   } catch (e) {
@@ -497,7 +511,6 @@ function processClash(data, set, base64Links) {
 
 app.get('/', async (req, res) => {
   if (cachedYaml.includes('初始化')) await updateCache();
-
   res.setHeader('Content-Type', 'text/yaml; charset=utf-8');
   res.send(cachedYaml);
 });
