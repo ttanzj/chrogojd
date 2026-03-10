@@ -38,7 +38,7 @@ proxies:
     alpn:
       - h3
     portRange: '11000'
-    name: '[2001:bc8:32d7:17b::2] :11000 (apple.com)'
+    name: FR - [2001:bc8:32d7:17b::2] :11000 (apple.com)
   - type: hysteria2
     server: 2001:bc8:32d7:17b::8
     port: 22000
@@ -49,7 +49,7 @@ proxies:
     alpn:
       - h3
     portRange: '22000'
-    name: '[2001:bc8:32d7:17b::8] :22000 (apple.com)'
+    name: FR - [2001:bc8:32d7:17b::8] :22000 (apple.com)
   - type: hysteria2
     server: 2001:bc8:32d7:302::11
     port: 20088
@@ -60,7 +60,7 @@ proxies:
     alpn:
       - h3
     portRange: '20088'
-    name: '[2001:bc8:32d7:302::11] :20088 (apple.com)'
+    name: FR - [2001:bc8:32d7:302::11] :20088 (apple.com)
   - type: vless
     server: 2001:bc8:32d7:302::13
     port: 34324
@@ -80,7 +80,7 @@ proxies:
     reality-opts:
       public-key: pHn5CHa2P6-lNBIkTOI3zJQN19jfNFkXxGFuyefpP0M
       short-id: ''
-    name: '[2001:bc8:32d7:302::13]'
+    name: FR - [2001:bc8:32d7:302::13]
   - type: vmess
     server: 104.21.238.35
     port: 2086
@@ -101,7 +101,7 @@ proxies:
         Host: ip29.9447609.xyz
     alterId: 0
     cipher: auto
-    name: 104.21.238.35
+    name: '?? - 104.21.238.35'
   - type: vmess
     server: 2001:bc8:32d7:302::10
     port: 44579
@@ -122,7 +122,7 @@ proxies:
         Host: 2001:bc8:32d7:302::10
     alterId: 0
     cipher: auto
-    name: '[2001:bc8:32d7:302::10]'
+    name: FR - [2001:bc8:32d7:302::10]
   - type: vmess
     server: 104.21.238.35
     port: 2086
@@ -143,7 +143,7 @@ proxies:
         Host: ip19.9447609.xyz
     alterId: 0
     cipher: auto
-    name: 104.21.238.35
+    name: '?? - 104.21.238.35'
   - type: hysteria
     server: 5.83.129.90
     port: 54177
@@ -156,7 +156,7 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 5.83.129.90 (bing.com)
+    name: DE - 5.83.129.90 (bing.com)
   - type: hysteria
     server: 45.150.65.154
     port: 47119
@@ -169,7 +169,7 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    name: 45.150.65.154 (bing.com)
+    name: GB - 45.150.65.154 (bing.com)
   - type: hysteria
     server: 2001:bc8:32d7:17b::2
     port: 11000
@@ -181,7 +181,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: '[2001:bc8:32d7:17b::2] (apple.com)'
+    name: FR - [2001:bc8:32d7:17b::2] (apple.com)
   - server: 2001:bc8:32d7:302::16
     port: 34997
     type: tuic
@@ -194,7 +194,7 @@ proxies:
     reduce-rtt: true
     udp-relay-mode: native
     congestion-controller: bbr
-    name: '[2001:bc8:32d7:302::16] (bing.com)'
+    name: FR - [2001:bc8:32d7:302::16] (bing.com)
   - type: hysteria2
     server: 2001:bc8:32d7:302::17
     port: 20088
@@ -206,7 +206,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: '[2001:bc8:32d7:302::17] (apple.com)'
+    name: FR - [2001:bc8:32d7:302::17] (apple.com)
   - type: hysteria
     server: 5.83.129.143
     port: 26691
@@ -218,7 +218,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: 5.83.129.143 (apple.com)
+    name: DE - 5.83.129.143 (apple.com)
   - type: hysteria
     server: 2a14:7584:d099::a
     port: 26691
@@ -230,7 +230,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: '[2a14:7584:d099::a] (apple.com)'
+    name: US - [2a14:7584:d099::a] (apple.com)
   - server: ip1.758733.xyz
     port: 10088
     type: tuic
@@ -243,7 +243,7 @@ proxies:
     udp-relay-mode: native
     skip-cert-verify: true
     congestion-controller: bbr
-    name: ip1.758733.xyz (apple.com)
+    name: '?? - ip1.758733.xyz (apple.com)'
   - type: hysteria
     server: ip1.758733.xyz
     port: 23008
@@ -255,7 +255,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: ip1.758733.xyz (apple.com)
+    name: '?? - ip1.758733.xyz (apple.com)'
   - type: vless
     server: 2001:bc8:32d7:181::3
     port: 17401
@@ -279,7 +279,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: '[2001:bc8:32d7:181::3]'
+    name: FR - [2001:bc8:32d7:181::3]
   - type: vless
     server: 2001:bc8:32d7:181::4
     port: 17401
@@ -303,7 +303,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: '[2001:bc8:32d7:181::4]'
+    name: FR - [2001:bc8:32d7:181::4]
   - type: vless
     server: 2001:bc8:32d7:181::5
     port: 17401
@@ -327,7 +327,7 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: '[2001:bc8:32d7:181::5]'
+    name: FR - [2001:bc8:32d7:181::5]
   - type: anytls
     server: 45.221.98.14
     port: 59901
@@ -341,7 +341,7 @@ proxies:
       - h2
       - http/1.1
     skip-cert-verify: true
-    name: 45.221.98.14
+    name: ZA - 45.221.98.14
   - type: vless
     server: 2001:bc8:32d7:181::2
     port: 17401
@@ -365,14 +365,14 @@ proxies:
         enabled: true
         up: 50
         down: 100
-    name: '[2001:bc8:32d7:181::2]'
+    name: FR - [2001:bc8:32d7:181::2]
   - type: mieru
     server: 157.254.223.48
     port: 33990
     transport: TCP
     username: dongtaiwang.com
     password: dongtaiwang.com
-    name: 157.254.223.48
+    name: US - 157.254.223.48
   - type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -384,7 +384,7 @@ proxies:
     protocol: udp
     up: 11 Mbps
     down: 55 Mbps
-    name: '[2a14:7584:d097::a] (apple.com)'
+    name: US - [2a14:7584:d097::a] (apple.com)
   - type: hysteria
     server: 5.83.129.153
     port: 20088
@@ -398,7 +398,7 @@ proxies:
     alpn:
       - h3
     portRange: '20088'
-    name: 5.83.129.153 :20088 (apple.com)
+    name: DE - 5.83.129.153 :20088 (apple.com)
   - type: hysteria
     server: 5.83.129.90
     port: 54177
@@ -412,7 +412,7 @@ proxies:
     alpn:
       - h3
     portRange: '54177'
-    name: 5.83.129.90 :54177 (apple.com)
+    name: DE - 5.83.129.90 :54177 (apple.com)
   - type: hysteria2
     server: 89.144.35.34
     port: 43608
@@ -423,7 +423,7 @@ proxies:
     alpn:
       - h3
     portRange: '43608'
-    name: 89.144.35.34 :43608 (apple.com)
+    name: DE - 89.144.35.34 :43608 (apple.com)
   - type: hysteria2
     server: 157.254.223.24
     port: 30088
@@ -434,7 +434,7 @@ proxies:
     alpn:
       - h3
     portRange: 30088,31000-32000
-    name: 157.254.223.24 :30088,31000-32000 (apple.com)
+    name: US - 157.254.223.24 :30088,31000-32000 (apple.com)
   - type: hysteria2
     server: 62.210.124.146
     port: 22000
@@ -445,7 +445,7 @@ proxies:
     alpn:
       - h3
     portRange: '22000'
-    name: 62.210.124.146 :22000 (www.microsoft.com)
+    name: FR - 62.210.124.146 :22000 (www.microsoft.com)
   - type: hysteria2
     server: 2a14:7584:d04a::a
     port: 50022
@@ -456,7 +456,7 @@ proxies:
     alpn:
       - h3
     portRange: '50022'
-    name: '[2a14:7584:d04a::a] :50022 (apple.com)'
+    name: US - [2a14:7584:d04a::a] :50022 (apple.com)
   - type: vless
     server: fan3.394615.xyz
     port: 34500
@@ -478,7 +478,7 @@ proxies:
     reality-opts:
       public-key: Yg6kOijRv1IbFcwhY0WmwJ8KW7YTtux4QlQhekEzNEQ
       short-id: 3a1381d1b2cc9e19
-    name: fan3.394615.xyz
+    name: '?? - fan3.394615.xyz'
   - type: vless
     server: 163.172.116.154
     port: 34598
@@ -500,7 +500,7 @@ proxies:
     reality-opts:
       public-key: '-ZbYVgqnVfRobtjvfnNJBTO3bnQ2c3r4v8jyGRD1VHI'
       short-id: 4a8c287920a355b7
-    name: 163.172.116.154
+    name: FR - 163.172.116.154
   - type: vless
     server: 89.144.35.230
     port: 54582
@@ -523,7 +523,7 @@ proxies:
     reality-opts:
       public-key: kfw5DgkyKiovC3dzb-o2PUYnZPnbYvbx2IwERUv9czY
       short-id: 225e2cc8
-    name: 89.144.35.230
+    name: DE - 89.144.35.230
   - type: vless
     server: 2a14:7584:d097::a
     port: 11330
@@ -545,85 +545,85 @@ proxies:
     reality-opts:
       public-key: 3HaD5Ztk3X4gi3aJLVesV6KSJTW2YGG-hvGD3ZumJkE
       short-id: fa789b2f5ff56959
-    name: '[2a14:7584:d097::a]'
+    name: US - [2a14:7584:d097::a]
 proxy-groups:
   - name: 节点选择
     type: select
     proxies:
       - 自动选择
       - DIRECT
-      - '[2001:bc8:32d7:17b::2] :11000 (apple.com)'
-      - '[2001:bc8:32d7:17b::8] :22000 (apple.com)'
-      - '[2001:bc8:32d7:302::11] :20088 (apple.com)'
-      - '[2001:bc8:32d7:302::13]'
-      - 104.21.238.35
-      - '[2001:bc8:32d7:302::10]'
-      - 104.21.238.35
-      - 5.83.129.90 (bing.com)
-      - 45.150.65.154 (bing.com)
-      - '[2001:bc8:32d7:17b::2] (apple.com)'
-      - '[2001:bc8:32d7:302::16] (bing.com)'
-      - '[2001:bc8:32d7:302::17] (apple.com)'
-      - 5.83.129.143 (apple.com)
-      - '[2a14:7584:d099::a] (apple.com)'
-      - ip1.758733.xyz (apple.com)
-      - ip1.758733.xyz (apple.com)
-      - '[2001:bc8:32d7:181::3]'
-      - '[2001:bc8:32d7:181::4]'
-      - '[2001:bc8:32d7:181::5]'
-      - 45.221.98.14
-      - '[2001:bc8:32d7:181::2]'
-      - 157.254.223.48
-      - '[2a14:7584:d097::a] (apple.com)'
-      - 5.83.129.153 :20088 (apple.com)
-      - 5.83.129.90 :54177 (apple.com)
-      - 89.144.35.34 :43608 (apple.com)
-      - 157.254.223.24 :30088,31000-32000 (apple.com)
-      - 62.210.124.146 :22000 (www.microsoft.com)
-      - '[2a14:7584:d04a::a] :50022 (apple.com)'
-      - fan3.394615.xyz
-      - 163.172.116.154
-      - 89.144.35.230
-      - '[2a14:7584:d097::a]'
+      - FR - [2001:bc8:32d7:17b::2] :11000 (apple.com)
+      - FR - [2001:bc8:32d7:17b::8] :22000 (apple.com)
+      - FR - [2001:bc8:32d7:302::11] :20088 (apple.com)
+      - FR - [2001:bc8:32d7:302::13]
+      - '?? - 104.21.238.35'
+      - FR - [2001:bc8:32d7:302::10]
+      - '?? - 104.21.238.35'
+      - DE - 5.83.129.90 (bing.com)
+      - GB - 45.150.65.154 (bing.com)
+      - FR - [2001:bc8:32d7:17b::2] (apple.com)
+      - FR - [2001:bc8:32d7:302::16] (bing.com)
+      - FR - [2001:bc8:32d7:302::17] (apple.com)
+      - DE - 5.83.129.143 (apple.com)
+      - US - [2a14:7584:d099::a] (apple.com)
+      - '?? - ip1.758733.xyz (apple.com)'
+      - '?? - ip1.758733.xyz (apple.com)'
+      - FR - [2001:bc8:32d7:181::3]
+      - FR - [2001:bc8:32d7:181::4]
+      - FR - [2001:bc8:32d7:181::5]
+      - ZA - 45.221.98.14
+      - FR - [2001:bc8:32d7:181::2]
+      - US - 157.254.223.48
+      - US - [2a14:7584:d097::a] (apple.com)
+      - DE - 5.83.129.153 :20088 (apple.com)
+      - DE - 5.83.129.90 :54177 (apple.com)
+      - DE - 89.144.35.34 :43608 (apple.com)
+      - US - 157.254.223.24 :30088,31000-32000 (apple.com)
+      - FR - 62.210.124.146 :22000 (www.microsoft.com)
+      - US - [2a14:7584:d04a::a] :50022 (apple.com)
+      - '?? - fan3.394615.xyz'
+      - FR - 163.172.116.154
+      - DE - 89.144.35.230
+      - US - [2a14:7584:d097::a]
   - name: 自动选择
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
     proxies:
-      - '[2001:bc8:32d7:17b::2] :11000 (apple.com)'
-      - '[2001:bc8:32d7:17b::8] :22000 (apple.com)'
-      - '[2001:bc8:32d7:302::11] :20088 (apple.com)'
-      - '[2001:bc8:32d7:302::13]'
-      - 104.21.238.35
-      - '[2001:bc8:32d7:302::10]'
-      - 104.21.238.35
-      - 5.83.129.90 (bing.com)
-      - 45.150.65.154 (bing.com)
-      - '[2001:bc8:32d7:17b::2] (apple.com)'
-      - '[2001:bc8:32d7:302::16] (bing.com)'
-      - '[2001:bc8:32d7:302::17] (apple.com)'
-      - 5.83.129.143 (apple.com)
-      - '[2a14:7584:d099::a] (apple.com)'
-      - ip1.758733.xyz (apple.com)
-      - ip1.758733.xyz (apple.com)
-      - '[2001:bc8:32d7:181::3]'
-      - '[2001:bc8:32d7:181::4]'
-      - '[2001:bc8:32d7:181::5]'
-      - 45.221.98.14
-      - '[2001:bc8:32d7:181::2]'
-      - 157.254.223.48
-      - '[2a14:7584:d097::a] (apple.com)'
-      - 5.83.129.153 :20088 (apple.com)
-      - 5.83.129.90 :54177 (apple.com)
-      - 89.144.35.34 :43608 (apple.com)
-      - 157.254.223.24 :30088,31000-32000 (apple.com)
-      - 62.210.124.146 :22000 (www.microsoft.com)
-      - '[2a14:7584:d04a::a] :50022 (apple.com)'
-      - fan3.394615.xyz
-      - 163.172.116.154
-      - 89.144.35.230
-      - '[2a14:7584:d097::a]'
+      - FR - [2001:bc8:32d7:17b::2] :11000 (apple.com)
+      - FR - [2001:bc8:32d7:17b::8] :22000 (apple.com)
+      - FR - [2001:bc8:32d7:302::11] :20088 (apple.com)
+      - FR - [2001:bc8:32d7:302::13]
+      - '?? - 104.21.238.35'
+      - FR - [2001:bc8:32d7:302::10]
+      - '?? - 104.21.238.35'
+      - DE - 5.83.129.90 (bing.com)
+      - GB - 45.150.65.154 (bing.com)
+      - FR - [2001:bc8:32d7:17b::2] (apple.com)
+      - FR - [2001:bc8:32d7:302::16] (bing.com)
+      - FR - [2001:bc8:32d7:302::17] (apple.com)
+      - DE - 5.83.129.143 (apple.com)
+      - US - [2a14:7584:d099::a] (apple.com)
+      - '?? - ip1.758733.xyz (apple.com)'
+      - '?? - ip1.758733.xyz (apple.com)'
+      - FR - [2001:bc8:32d7:181::3]
+      - FR - [2001:bc8:32d7:181::4]
+      - FR - [2001:bc8:32d7:181::5]
+      - ZA - 45.221.98.14
+      - FR - [2001:bc8:32d7:181::2]
+      - US - 157.254.223.48
+      - US - [2a14:7584:d097::a] (apple.com)
+      - DE - 5.83.129.153 :20088 (apple.com)
+      - DE - 5.83.129.90 :54177 (apple.com)
+      - DE - 89.144.35.34 :43608 (apple.com)
+      - US - 157.254.223.24 :30088,31000-32000 (apple.com)
+      - FR - 62.210.124.146 :22000 (www.microsoft.com)
+      - US - [2a14:7584:d04a::a] :50022 (apple.com)
+      - '?? - fan3.394615.xyz'
+      - FR - 163.172.116.154
+      - DE - 89.144.35.230
+      - US - [2a14:7584:d097::a]
 rules:
   - DOMAIN,clash.razord.top,DIRECT
   - DOMAIN,yacd.haishan.me,DIRECT
