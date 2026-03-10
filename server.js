@@ -24,7 +24,6 @@ async function updateCache() {
       let data;
       let detectedType = site.type || 'unknown';
 
-      // 优先尝试 YAML 解析
       try {
         data = yaml.load(raw);
         if (data && typeof data === 'object') {
@@ -35,7 +34,6 @@ async function updateCache() {
           }
         }
       } catch (yamlErr) {
-        // YAML 失败，尝试 JSON
         try {
           data = JSON.parse(raw);
         } catch (jsonErr) {
@@ -86,7 +84,6 @@ async function updateCache() {
   for (let i = 0; i < proxyStrs.length; i++) {
     const obj = JSON.parse(proxyStrs[i]);
 
-    // 简化名称：只显示地址 + 必要端口 + sni（不同时） + 跳跃端口
     let name = obj.server || '未知';
     if (obj.port && obj.port !== 443 && obj.port !== 80) {
       name += `:${obj.port}`;
@@ -98,7 +95,7 @@ async function updateCache() {
       name += ` 跳跃端口:${obj.portRange}`;
     }
 
-    obj.name = name.trim().slice(0, 60); // 限制长度避免客户端显示问题
+    obj.name = name.trim().slice(0, 60);
     proxyObjects.push(obj);
     proxyNames.push(obj.name);
   }
@@ -619,7 +616,7 @@ function processClash(data, set, base64Links) {
           v: '2',
           ps: p.name || `${p.type}-${p.server || '未知'}`,
           add: p.server,
-          port: p。port,
+          port: p.port,
           id: p.uuid,
           aid: p.alterId || 0,
           net: p.network || 'tcp',
@@ -650,14 +647,14 @@ function processClash(data, set, base64Links) {
           downmbps: p.down || '',
           alpn: (p.alpn?.[0] || 'h3')
         });
-        link = `hysteria://${p.server}:${p.port}?${params.toString()}#${p.name || `${p.type}-${p.server || '未知'}`}`;
+        link = `hysteria://${p.server}:${p.port}?${params.toString()}#${p.name || `${p.输入}-${p.server || '未知'}`}`;
       } else if (p.type === 'hysteria2') {
         const authPart = p.password ? `${encodeURIComponent(p.password)}@` : '';
         const params = new URLSearchParams({
           insecure: p['skip-cert-verify'] ? '1' : '0',
           sni: p.sni || ''
         });
-        link = `hysteria2://${authPart}${p.server}:${p.port}?${params.toString()}#${p.name || `${p.type}-${p.server || '未知'}`}`;
+        link = `hysteria2://${authPart}${p.server}:${p.port}?${params.toString()}#${p.name || `${p.输入}-${p.server || '未知'}`}`;
       }
       if (link) base64Links.push(link);
     } catch (e) {
