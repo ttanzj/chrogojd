@@ -9,6 +9,26 @@ const app = express();
 let cachedYaml = '# 正在初始化节点，请稍等...\n';
 let cachedBase64 = '';
 
+// 简单缓存：server → 国家代码（避免重复请求）
+const countryCache = new Map();
+
+async function getCountryCode(server) {
+  if (countryCache.has(server)) {
+    return countryCache.get(server);
+  }
+
+  try {
+    const res = await axios.get(`https://api.country.is/${server}`, { timeout: 4000 });
+    const data = res.data;
+    const code = data.country || '??';
+    countryCache.set(server, code);
+    return code;
+  } catch (err) {
+    countryCache.set(server, '??');
+    return '??';
+  }
+}
+
 async function updateCache() {
   console.log('🔄 开始更新节点缓存...');
   const sites = JSON.parse(fs.readFileSync('./subscriptions.json', 'utf8'));
@@ -59,11 +79,20 @@ async function updateCache() {
     const obj = JSON.parse(proxyStrs[i]);
     const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
     
-    // 修改此处：名称只显示地址 + 端口跳跃（如果有），不显示类型
+    // ──────────────── 修改的部分开始 ────────────────
+    const country = await getCountryCode(obj.server);
     let name = obj.server || '未知';
-    if (isIPv6) name = `[${name}]`;  // IPv6 地址加方括号，更规范
+    if (isIPv6) name = `[${name}]`;
     if (obj.portRange) name += ` :${obj.portRange}`;
     if (obj.sni && obj.sni !== obj.server) name += ` (${obj.sni})`;
+
+    // 在最前面加上国家代码（如果查到）
+    if (country && country !== '??') {
+      name = `${country} - ${name}`;
+    } else {
+      name = `?? - ${name}`;
+    }
+    // ──────────────── 修改的部分结束 ────────────────
 
     obj.name = name.trim();
     proxyObjects.push(obj);
