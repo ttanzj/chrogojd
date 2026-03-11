@@ -366,13 +366,19 @@ proxies:
         up: 50
         down: 100
     name: FR - [2001:bc8:32d7:181::2]
-  - type: mieru
-    server: 157.254.223.48
-    port: 33990
-    transport: TCP
-    username: dongtaiwang.com
-    password: dongtaiwang.com
-    name: US - 157.254.223.48
+  - server: 157.254.223.48
+    port: 11540
+    type: tuic
+    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    sni: www.microsoft.com
+    alpn:
+      - h3
+    request-timeout: 8000
+    udp-relay-mode: native
+    skip-cert-verify: true
+    congestion-controller: bbr
+    name: US - 157.254.223.48 (www.microsoft.com)
   - type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -414,16 +420,16 @@ proxies:
     portRange: '54177'
     name: DE - 5.83.129.90 :54177 (apple.com)
   - type: hysteria2
-    server: 89.144.35.34
-    port: 43608
+    server: 157.254.223.43
+    port: 27921
     password: dongtaiwang.com
     fast-open: true
-    sni: apple.com
+    sni: www.bing.com
     skip-cert-verify: true
     alpn:
       - h3
-    portRange: '43608'
-    name: DE - 89.144.35.34 :43608 (apple.com)
+    portRange: 27921,28000-29000
+    name: US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
   - type: hysteria2
     server: 157.254.223.24
     port: 30088
@@ -436,7 +442,7 @@ proxies:
     portRange: 30088,31000-32000
     name: US - 157.254.223.24 :30088,31000-32000 (apple.com)
   - type: hysteria2
-    server: 62.210.124.146
+    server: 2001:bc8:32d7:17b::3
     port: 22000
     password: dongtaiwang.com
     fast-open: true
@@ -445,20 +451,9 @@ proxies:
     alpn:
       - h3
     portRange: '22000'
-    name: FR - 62.210.124.146 :22000 (www.microsoft.com)
-  - type: hysteria2
-    server: 2a14:7584:d04a::a
-    port: 50022
-    password: dongtaiwang.com
-    fast-open: true
-    sni: apple.com
-    skip-cert-verify: true
-    alpn:
-      - h3
-    portRange: '50022'
-    name: US - [2a14:7584:d04a::a] :50022 (apple.com)
+    name: FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
   - type: vless
-    server: fan3.394615.xyz
+    server: 111.243.110.249
     port: 34500
     uuid: 8b66e552-e89d-4c4f-bb5a-e3d37bf151b8
     network: httpupgrade
@@ -478,29 +473,7 @@ proxies:
     reality-opts:
       public-key: Yg6kOijRv1IbFcwhY0WmwJ8KW7YTtux4QlQhekEzNEQ
       short-id: 3a1381d1b2cc9e19
-    name: '?? - fan3.394615.xyz'
-  - type: vless
-    server: 163.172.116.154
-    port: 34598
-    uuid: 51408440-3dda-407d-8fe0-bf0bf13e73b3
-    network: httpupgrade
-    tls: true
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: www.pixiv.co.jp
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    httpupgrade-opts:
-      path: github.com/Alvin9999
-      host: www.pixiv.co.jp
-    encryption: none
-    reality-opts:
-      public-key: '-ZbYVgqnVfRobtjvfnNJBTO3bnQ2c3r4v8jyGRD1VHI'
-      short-id: 4a8c287920a355b7
-    name: FR - 163.172.116.154
+    name: TW - 111.243.110.249
   - type: vless
     server: 89.144.35.230
     port: 54582
@@ -573,16 +546,14 @@ proxy-groups:
       - FR - [2001:bc8:32d7:181::5]
       - ZA - 45.221.98.14
       - FR - [2001:bc8:32d7:181::2]
-      - US - 157.254.223.48
+      - US - 157.254.223.48 (www.microsoft.com)
       - US - [2a14:7584:d097::a] (apple.com)
       - DE - 5.83.129.153 :20088 (apple.com)
       - DE - 5.83.129.90 :54177 (apple.com)
-      - DE - 89.144.35.34 :43608 (apple.com)
+      - US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
       - US - 157.254.223.24 :30088,31000-32000 (apple.com)
-      - FR - 62.210.124.146 :22000 (www.microsoft.com)
-      - US - [2a14:7584:d04a::a] :50022 (apple.com)
-      - '?? - fan3.394615.xyz'
-      - FR - 163.172.116.154
+      - FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
+      - TW - 111.243.110.249
       - DE - 89.144.35.230
       - US - [2a14:7584:d097::a]
   - name: 自动选择
@@ -612,16 +583,14 @@ proxy-groups:
       - FR - [2001:bc8:32d7:181::5]
       - ZA - 45.221.98.14
       - FR - [2001:bc8:32d7:181::2]
-      - US - 157.254.223.48
+      - US - 157.254.223.48 (www.microsoft.com)
       - US - [2a14:7584:d097::a] (apple.com)
       - DE - 5.83.129.153 :20088 (apple.com)
       - DE - 5.83.129.90 :54177 (apple.com)
-      - DE - 89.144.35.34 :43608 (apple.com)
+      - US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
       - US - 157.254.223.24 :30088,31000-32000 (apple.com)
-      - FR - 62.210.124.146 :22000 (www.microsoft.com)
-      - US - [2a14:7584:d04a::a] :50022 (apple.com)
-      - '?? - fan3.394615.xyz'
-      - FR - 163.172.116.154
+      - FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
+      - TW - 111.243.110.249
       - DE - 89.144.35.230
       - US - [2a14:7584:d097::a]
 rules:
