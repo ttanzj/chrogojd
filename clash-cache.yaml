@@ -453,7 +453,7 @@ proxies:
     portRange: '22000'
     name: FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
   - type: vless
-    server: 111.243.110.249
+    server: 111.243.93.207
     port: 34500
     uuid: 8b66e552-e89d-4c4f-bb5a-e3d37bf151b8
     network: httpupgrade
@@ -473,7 +473,7 @@ proxies:
     reality-opts:
       public-key: Yg6kOijRv1IbFcwhY0WmwJ8KW7YTtux4QlQhekEzNEQ
       short-id: 3a1381d1b2cc9e19
-    name: TW - 111.243.110.249
+    name: TW - 111.243.93.207
   - type: vless
     server: 89.144.35.230
     port: 54582
@@ -553,7 +553,7 @@ proxy-groups:
       - US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
       - US - 157.254.223.24 :30088,31000-32000 (apple.com)
       - FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
-      - TW - 111.243.110.249
+      - TW - 111.243.93.207
       - DE - 89.144.35.230
       - US - [2a14:7584:d097::a]
   - name: 自动选择
@@ -590,7 +590,7 @@ proxy-groups:
       - US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
       - US - 157.254.223.24 :30088,31000-32000 (apple.com)
       - FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
-      - TW - 111.243.110.249
+      - TW - 111.243.93.207
       - DE - 89.144.35.230
       - US - [2a14:7584:d097::a]
 rules:
