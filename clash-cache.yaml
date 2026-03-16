@@ -431,16 +431,16 @@ proxies:
     portRange: 27921,28000-29000
     name: US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
   - type: hysteria2
-    server: 157.254.223.24
-    port: 30088
-    password: alvin9999.com
+    server: 2a10:3c80:0:f::2
+    port: 39463
+    password: VNws548Lj/fDRk58HE6dKAcTNpb8+iIk+ycqKEBNG/U=
     fast-open: true
-    sni: apple.com
+    sni: www.microsoft.com
     skip-cert-verify: true
     alpn:
       - h3
-    portRange: 30088,31000-32000
-    name: US - 157.254.223.24 :30088,31000-32000 (apple.com)
+    portRange: '39463'
+    name: LT - [2a10:3c80:0:f::2] :39463 (www.microsoft.com)
   - type: hysteria2
     server: 2001:bc8:32d7:17b::3
     port: 22000
@@ -453,7 +453,7 @@ proxies:
     portRange: '22000'
     name: FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
   - type: vless
-    server: 111.243.93.207
+    server: 111.243.108.74
     port: 34500
     uuid: 8b66e552-e89d-4c4f-bb5a-e3d37bf151b8
     network: httpupgrade
@@ -473,7 +473,7 @@ proxies:
     reality-opts:
       public-key: Yg6kOijRv1IbFcwhY0WmwJ8KW7YTtux4QlQhekEzNEQ
       short-id: 3a1381d1b2cc9e19
-    name: TW - 111.243.93.207
+    name: TW - 111.243.108.74
   - type: vless
     server: 89.144.35.230
     port: 54582
@@ -551,9 +551,9 @@ proxy-groups:
       - DE - 5.83.129.153 :20088 (apple.com)
       - DE - 5.83.129.90 :54177 (apple.com)
       - US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
-      - US - 157.254.223.24 :30088,31000-32000 (apple.com)
+      - LT - [2a10:3c80:0:f::2] :39463 (www.microsoft.com)
       - FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
-      - TW - 111.243.93.207
+      - TW - 111.243.108.74
       - DE - 89.144.35.230
       - US - [2a14:7584:d097::a]
   - name: 自动选择
@@ -588,9 +588,9 @@ proxy-groups:
       - DE - 5.83.129.153 :20088 (apple.com)
       - DE - 5.83.129.90 :54177 (apple.com)
       - US - 157.254.223.43 :27921,28000-29000 (www.bing.com)
-      - US - 157.254.223.24 :30088,31000-32000 (apple.com)
+      - LT - [2a10:3c80:0:f::2] :39463 (www.microsoft.com)
       - FR - [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
-      - TW - 111.243.93.207
+      - TW - 111.243.108.74
       - DE - 89.144.35.230
       - US - [2a14:7584:d097::a]
 rules:
