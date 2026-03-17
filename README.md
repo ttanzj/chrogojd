@@ -37,6 +37,7 @@ GitHub → Settings → Developer settings → Personal access tokens (classic) 
 
 github订阅地址：（NekoBox（以及几乎所有 Clash 系客户端）订阅链接必须使用 raw.githubusercontent.com 的 raw 地址，而不是 blob 页面地址）
 https://raw.githubusercontent.com/你的用户名/chrogojd/main/clash-cache.yaml
+本项目节点不再更新
 
 部署后，容器每次更新节点缓存（启动时 + 每天 00:00）都会自动把最新 YAML 上传到你的 GitHub 仓库，你可以在 GitHub 上直接看到 clash-cache.yaml 文件实时更新。
 
