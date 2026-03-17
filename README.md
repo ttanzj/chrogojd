@@ -2,6 +2,8 @@
 
 Clash 全节点自动聚合服务（支持 Hysteria / Hysteria2 / Xray / Singbox / Clash 多种格式）
 
+本项目仅提供方法，项目内订阅为空
+
 ## 功能
 - 保留全部原始订阅地址（`subscriptions.json` 可自由修改）
 - 自动去重 + 失效地址自动跳过
