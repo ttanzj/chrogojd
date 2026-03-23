@@ -50,7 +50,7 @@ https://raw.githubusercontent.com/你的用户名/chrogojd/main/clash-cache.yaml
 - server.js可以输出yaml和base64格式，server.js-back是只yaml格式
 - subscriptions.json是整合新版和旧版chromego后的地址，subscriptions.json-是旧版地址，两版都未去除失效链接
 - base64订阅大量重复，去重后节点比yaml少
-- 本项目回传github是为解决clawcloud地址长期不启用的问题，只要不部署在美国东区，部署在日本区此问题可解决，直接访问项目地址能得到完整节点
+## 本项目回传github是为解决clawcloud地址长期不启用的问题，只要不部署在美国东区，部署在日本区此问题可解决，直接访问项目地址能得到完整节点
 
 
 所有镜像地址：https://github.com/你的用户名?tab=packages
