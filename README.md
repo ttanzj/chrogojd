@@ -12,17 +12,15 @@ Clash 全节点自动聚合服务（支持 Hysteria / Hysteria2 / Xray / Singbox
 
 ## 部署方式（ClawCloud）
 
-1. 在 GitHub 创建仓库 `chrogojd`，把上面所有文件 push 上去。
-2. GitHub Action 会自动构建并推送镜像 `ghcr.io/你的用户名/chrogojd:latest`。
+1. Fork本仓库，或在 GitHub 创建仓库 `chrogojd`，把上面所有文件 push 上去。
+2. 启动GitHub Action，可手动执行自动构建并推送镜像 `ghcr.io/你的用户名/chrogojd:latest`。
 3. 在 ClawCloud 新建容器：
    - 镜像地址：`ghcr.io/你的用户名/chrogojd:latest`
    - 端口映射：`3000`（容器端口）→ 你想要的宿主机端口（推荐 8080）
 4. 启动后访问：
 
 **访问地址**  
-`http://你的ClawCloud-IP:8080/` （或你映射的端口）
-
-浏览器会展示 `clash_config.yaml`，复制到 Clash Meta / Mihomo 即可使用，但在实际运行中显示地址错误不出现。
+`http://你的ClawCloud-IP` 或自定义域地址
 
 ## 修改订阅地址
 编辑 `subscriptions.json` → push → GitHub Action 自动重新构建镜像。
