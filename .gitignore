@@ -1,0 +1,8 @@
+# 忽略依赖包文件夹
+node_modules/
+
+# 其他常用忽略文件
+.env
+.DS_Store
+npm-debug.log
+dist/

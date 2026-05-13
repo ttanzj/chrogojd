@@ -1,0 +1,13 @@
+{
+  "name": "clash-sub-updater",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "update": "node update.js"
+  },
+  "dependencies": {
+    "axios": "^1.8.0",
+    "js-yaml": "^4.1.0",
+    "dotenv": "^16.4.5"
+  }
+}

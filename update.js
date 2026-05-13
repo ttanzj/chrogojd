@@ -1,0 +1,647 @@
+import axios from 'axios';
+import yaml from 'js-yaml';
+import fs from 'fs';
+import { execSync } from 'child_process';
+import config from './config.js';
+
+// ==================== Git 自动初始化 ====================
+function ensureGitRepo() {
+  try {
+    execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+    return true;
+  } catch {
+    console.log('🔧 首次运行，正在初始化 Git 仓库...');
+    try {
+      execSync('git init', { stdio: 'inherit' });
+      execSync('git branch -M main', { stdio: 'inherit' });
+      
+      if (config.github.repoUrl) {
+        execSync(`git remote add origin ${config.github.repoUrl}`, { stdio: 'inherit' });
+        console.log(`✅ 已关联仓库: ${config.github.repoUrl}`);
+      }
+      return true;
+    } catch (e) {
+      console.error('❌ Git 初始化失败:', e.message);
+      return false;
+    }
+  }
+}
+
+// ==================== 国家代码缓存 ====================
+const countryCache = new Map();
+
+async function getCountryCode(server) {
+  if (countryCache.has(server)) return countryCache.get(server);
+
+  if (!server ||
+      server.startsWith('127.') ||
+      server.startsWith('10.') ||
+      server.startsWith('192.168.') ||
+      server === 'localhost' ||
+      server.includes('local')) {
+    countryCache.set(server, 'LAN');
+    return 'LAN';
+  }
+
+  try {
+    const res = await axios.get(`http://ip-api.com/json/${server}?fields=countryCode`, { timeout: 3500 });
+    const code = res.data.countryCode || '??';
+    countryCache.set(server, code);
+    return code;
+  } catch {
+    countryCache.set(server, '??');
+    return '??';
+  }
+}
+
+// ==================== 读取 sources.txt ====================
+function loadSources() {
+  try {
+    const content = fs.readFileSync('./sources.txt', 'utf8');
+    const lines = content.split('\n').map(l => l.trim()).filter(l => l);
+
+    const sources = [];
+    let currentType = 'xray';
+
+    for (const line of lines) {
+      if (line.startsWith('#')) {
+        const comment = line.toLowerCase().replace('#', '').trim();
+        if (comment.includes('xray')) currentType = 'xray';
+        else if (comment.includes('clash')) currentType = 'clash';
+        else if (comment.includes('hysteria2')) currentType = 'hysteria2';
+        else if (comment.includes('hysteria')) currentType = 'hysteria';
+        else if (comment.includes('singbox')) currentType = 'singbox';
+        else if (comment.includes('juicity')) currentType = 'juicity';
+        else if (comment.includes('mieru')) currentType = 'mieru';
+        else if (comment.includes('naiveproxy')) currentType = 'naiveproxy';
+        else if (comment.includes('shadowquic')) currentType = 'shadowquic';
+        continue;
+      }
+
+      if (line.startsWith('http')) {
+        sources.push({ url: line, type: currentType });
+      }
+    }
+
+    console.log(`📋 从 sources.txt 加载了 ${sources.length} 个订阅地址`);
+    return sources;
+  } catch (err) {
+    console.error('❌ 读取 sources.txt 失败:', err.message);
+    return [];
+  }
+}
+
+// ======================== 工具函数 ========================
+function parseServerPort(serverStr, defaultPort = 443) {
+  if (!serverStr) return { server: '', port: defaultPort, portRange: null };
+  serverStr = serverStr.trim();
+
+  const bracketRange = serverStr.match(/^\[([^\]]+)\]:((\d+)(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*)$/);
+  if (bracketRange) {
+    const ip = bracketRange[1];
+    const range = bracketRange[2];
+    const firstPort = Number(range.split(/[-,]/)[0].trim());
+    return { server: ip, port: isNaN(firstPort) ? defaultPort : firstPort, portRange: range };
+  }
+
+  const hostRange = serverStr.match(/^([^:]+):((\d+)(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*)$/);
+  if (hostRange) {
+    const host = hostRange[1];
+    const range = hostRange[2];
+    const firstPort = Number(range.split(/[-,]/)[0].trim());
+    return { server: host, port: isNaN(firstPort) ? defaultPort : firstPort, portRange: range };
+  }
+
+  const bracketSingle = serverStr.match(/^\[([^\]]+)\]:(\d+)$/);
+  if (bracketSingle) {
+    return { server: bracketSingle[1], port: Number(bracketSingle[2]), portRange: null };
+  }
+
+  const lastColon = serverStr.lastIndexOf(':');
+  if (lastColon > serverStr.lastIndexOf(']') && lastColon !== -1) {
+    const possiblePort = serverStr.slice(lastColon + 1).trim();
+    if (/^\d+$/.test(possiblePort)) {
+      return { server: serverStr.slice(0, lastColon).trim(), port: Number(possiblePort), portRange: null };
+    }
+  }
+
+  const parts = serverStr.split(':');
+  if (parts.length === 2 && /^\d+$/.test(parts[1])) {
+    return { server: parts[0], port: Number(parts[1]), portRange: null };
+  }
+
+  return { server: serverStr, port: defaultPort, portRange: null };
+}
+
+function normalizeProxy(proxy) {
+  const norm = { ...proxy };
+  delete norm.name;
+  norm['skip-cert-verify'] = norm['skip-cert-verify'] ?? true;
+  norm.sni = norm.sni || norm.server || '';
+  norm['client-fingerprint'] = norm['client-fingerprint'] || 'chrome';
+  if (norm.alpn && Array.isArray(norm.alpn)) norm.alpn = norm.alpn.sort();
+  return norm;
+}
+
+// ======================== 所有 Process 函数（完整保留） ========================
+function processHysteria(data, set, base64Links) {
+  if (!data?.server) return;
+  const { server, port, portRange } = parseServerPort(data.server, 443);
+  const proxy = {
+    type: 'hysteria',
+    server,
+    port: Number(port),
+    auth_str: data.auth_str || '',
+    up: data.up_mbps,
+    down: data.down_mbps,
+    'fast-open': true,
+    protocol: data.protocol || 'udp',
+    sni: data.server_name || '',
+    'skip-cert-verify': true,
+    alpn: data.alpn ? [data.alpn] : ['h3'],
+    ...(portRange && { portRange })
+  };
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+
+  try {
+    const serverPart = server.includes(':') && !server.startsWith('[') ? `[${server}]` : server;
+    const params = new URLSearchParams({
+      protocol: proxy.protocol,
+      auth: proxy.auth_str,
+      peer: proxy.sni,
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      upmbps: proxy.up || '',
+      downmbps: proxy.down || '',
+      alpn: proxy.alpn[0] || 'h3'
+    });
+    let remark = proxy.sni || server;
+    if (portRange) remark += ` (端口跳跃: ${portRange})`;
+    const link = `hysteria://${serverPart}:${port}?${params.toString()}#${remark}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('hysteria base64 链接生成失败:', e.message);
+  }
+}
+
+function processHysteria2(data, set, base64Links) {
+  if (!data?.server) return;
+  const { server, port, portRange } = parseServerPort(data.server, 443);
+  const tls = data.tls || {};
+  let password = data.auth || data.password || data.auth_str || '';
+  if (typeof data.auth === 'object' && data.auth?.password) password = data.auth.password;
+  let sni = tls.sni || tls.server_name || data.server_name || '';
+  if (!sni && !server.includes(':') && !/^\d{1,3}(\.\d{1,3}){3}$/.test(server)) {
+    sni = server;
+  }
+  const proxy = {
+    type: 'hysteria2',
+    server,
+    port: Number(port),
+    password,
+    'fast-open': true,
+    sni,
+    'skip-cert-verify': tls.insecure ?? tls.allowInsecure ?? true,
+    alpn: tls.alpn ? (Array.isArray(tls.alpn) ? tls.alpn : [tls.alpn]) : ['h3'],
+    ...(portRange && { portRange, ports: portRange })
+  };
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+
+  try {
+    const serverPart = server.includes(':') && !server.startsWith('[') ? `[${server}]` : server;
+    const authPart = password ? `${encodeURIComponent(password)}@` : '';
+    const params = new URLSearchParams({
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      sni: proxy.sni || ''
+    });
+    let remark = proxy.sni || server;
+    if (portRange) remark += ` (端口跳跃: ${portRange})`;
+    const link = `hysteria2://${authPart}${serverPart}:${port}?${params.toString()}#${remark}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('hysteria2 base64 链接生成失败:', e.message);
+  }
+}
+
+function processXray(data, set, base64Links) {
+  const ob = data.outbounds?.[0];
+  if (!ob || !['vless', 'vmess'].includes(ob.protocol)) return;
+  const vnext = ob.settings?.vnext?.[0] || {};
+  const stream = ob.streamSettings || {};
+  const user = vnext.users?.[0] || {};
+  const server = vnext.address || '';
+  const port = vnext.port || 443;
+  let network = stream.network || 'tcp';
+  const security = stream.security || 'none';
+  const tls = security === 'tls' || security === 'reality';
+  const reality = security === 'reality';
+  let sni = '', fp = 'chrome', pbk = '', sid = '';
+  if (tls) {
+    const tlsSet = reality ? (stream.realitySettings || {}) : (stream.tlsSettings || {});
+    sni = tlsSet.serverName || server;
+    fp = tlsSet.fingerprint || 'chrome';
+    if (reality) {
+      pbk = tlsSet.publicKey || '';
+      sid = tlsSet.shortId || '';
+    }
+  }
+  let transportOpts = {};
+  if (network === 'xhttp' || stream.xhttpSettings) {
+    network = 'httpupgrade';
+    transportOpts = {
+      path: stream.xhttpSettings?.path || '/',
+      host: stream.xhttpSettings?.host || sni || server
+    };
+  } else if (network === 'ws') {
+    const ws = stream.wsSettings || {};
+    transportOpts = {
+      path: ws.path || '/',
+      headers: { Host: ws.headers?.Host || sni || server }
+    };
+  } else if (network === 'grpc') {
+    const grpc = stream.grpcSettings || {};
+    transportOpts = { 'grpc-service-name': grpc.serviceName || '' };
+  }
+  const proxy = {
+    type: ob.protocol,
+    server,
+    port: Number(port),
+    uuid: user.id || '',
+    network,
+    tls,
+    'skip-cert-verify': true,
+    'client-fingerprint': fp,
+    servername: sni || server,
+    udp: true,
+    alpn: ['h3', 'http/1.1'],
+    packet_encoding: 'xudp',
+    ...(Object.keys(transportOpts).length > 0 && { [`${network}-opts`]: transportOpts })
+  };
+  if (ob.protocol === 'vmess') {
+    proxy.alterId = 0;
+    proxy.cipher = 'auto';
+  } else {
+    proxy.encryption = user.encryption || 'none';
+  }
+  if (user.flow) proxy.flow = user.flow;
+  if (reality) {
+    proxy['reality-opts'] = { 'public-key': pbk, 'short-id': sid };
+  }
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+
+  try {
+    let link;
+    if (proxy.type === 'vmess') {
+      const vmessObj = {
+        v: '2',
+        ps: sni || server,
+        add: server,
+        port: port,
+        id: proxy.uuid,
+        aid: proxy.alterId || 0,
+        net: proxy.network,
+        type: 'none',
+        host: proxy[`${proxy.network}-opts`]?.headers?.Host || '',
+        path: proxy[`${proxy.network}-opts`]?.path || '',
+        tls: proxy.tls ? 'tls' : '',
+        sni: proxy.servername,
+        alpn: '',
+        fp: proxy['client-fingerprint']
+      };
+      const encoded = Buffer.from(JSON.stringify(vmessObj)).toString('base64');
+      link = `vmess://${encoded}`;
+    } else if (proxy.type === 'vless') {
+      const params = new URLSearchParams({
+        encryption: proxy.encryption || 'none',
+        security: proxy.tls ? (reality ? 'reality' : 'tls') : 'none',
+        fp: proxy['client-fingerprint'],
+        type: proxy.network,
+        ...(proxy.network === 'ws' && { path: proxy['ws-opts']?.path || '/', host: proxy['ws-opts']?.headers?.Host || '' }),
+        ...(proxy.network === 'httpupgrade' && { path: proxy['httpupgrade-opts']?.path || '/', host: proxy['httpupgrade-opts']?.host || '' }),
+        ...(reality && { 'pbk': pbk, 'sid': sid }),
+        sni: proxy.servername
+      });
+      let remark = sni || server;
+      if (proxy.network === 'httpupgrade') remark += ' [xhttp compat]';
+      link = `vless://${proxy.uuid}@${server}:${port}?${params.toString()}#${remark}`;
+    }
+    if (link) base64Links.push(link);
+  } catch (e) {
+    console.warn(`xray ${proxy.type} base64 链接生成失败:`, e.message);
+  }
+}
+
+function processSingbox(data, set, base64Links) {
+  const ob = data.outbounds?.[0];
+  if (!ob || ob.type !== 'hysteria') return;
+  const tls = ob.tls || {};
+  const proxy = {
+    type: 'hysteria',
+    server: ob.server,
+    port: ob.server_port,
+    auth_str: ob.auth_str,
+    up: ob.up_mbps,
+    down: ob.down_mbps,
+    'fast-open': true,
+    protocol: 'udp',
+    sni: tls.server_name,
+    'skip-cert-verify': tls.insecure ?? true,
+    alpn: tls.alpn?.[0] ? [tls.alpn[0]] : ['h3']
+  };
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+
+  try {
+    const params = new URLSearchParams({
+      protocol: proxy.protocol,
+      auth: proxy.auth_str,
+      peer: proxy.sni,
+      insecure: proxy['skip-cert-verify'] ? '1' : '0',
+      upmbps: proxy.up || '',
+      downmbps: proxy.down || '',
+      alpn: proxy.alpn[0] || 'h3'
+    });
+    const link = `hysteria://${proxy.server}:${proxy.port}?${params.toString()}#${proxy.sni || proxy.server}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('singbox hysteria base64 链接生成失败:', e.message);
+  }
+}
+
+function processClash(data, set, base64Links) {
+  const proxies = data.proxies || [];
+  for (const p of proxies) {
+    if (!p || typeof p !== 'object') continue;
+    const dedup = { ...p };
+    delete dedup.name;
+    const remark = p.name || `${p.type}-${p.server || '未知'}`;
+    set.add(JSON.stringify(dedup));
+
+    try {
+      let link;
+      if (p.type === 'vmess') {
+        const vmessObj = {
+          v: '2',
+          ps: remark,
+          add: p.server,
+          port: p.port,
+          id: p.uuid,
+          aid: p.alterId || 0,
+          net: p.network || 'tcp',
+          type: 'none',
+          host: p['ws-opts']?.headers?.Host || p.servername || '',
+          path: p['ws-opts']?.path || '',
+          tls: p.tls ? 'tls' : '',
+          sni: p.servername || ''
+        };
+        const encoded = Buffer.from(JSON.stringify(vmessObj)).toString('base64');
+        link = `vmess://${encoded}`;
+      } else if (p.type === 'vless') {
+        const params = new URLSearchParams({
+          encryption: p.encryption || 'none',
+          security: p.tls ? 'tls' : 'none',
+          type: p.network || 'tcp',
+          ...(p['ws-opts'] && { path: p['ws-opts'].path || '/', host: p['ws-opts'].headers?.Host || '' }),
+          sni: p.servername || '',
+          fp: p['client-fingerprint'] || 'chrome'
+        });
+        link = `vless://${p.uuid}@${p.server}:${p.port}?${params.toString()}#${remark}`;
+      } else if (p.type === 'hysteria') {
+        const params = new URLSearchParams({
+          auth: p.auth_str || '',
+          peer: p.sni || '',
+          insecure: p['skip-cert-verify'] ? '1' : '0',
+          upmbps: p.up || '',
+          downmbps: p.down || '',
+          alpn: (p.alpn?.[0] || 'h3')
+        });
+        link = `hysteria://${p.server}:${p.port}?${params.toString()}#${remark}`;
+      } else if (p.type === 'hysteria2') {
+        const authPart = p.password ? `${encodeURIComponent(p.password)}@` : '';
+        const params = new URLSearchParams({
+          insecure: p['skip-cert-verify'] ? '1' : '0',
+          sni: p.sni || ''
+        });
+        link = `hysteria2://${authPart}${p.server}:${p.port}?${params.toString()}#${remark}`;
+      }
+      if (link) base64Links.push(link);
+    } catch (e) {
+      console.warn(`clash ${p.type || '未知类型'} base64 转换失败:`, e.message);
+    }
+  }
+}
+
+function processJuicity(data, set, base64Links) {
+  const ob = data.outbounds?.[0] || data;
+  if (!ob?.server) return;
+  const proxy = {
+    type: 'juicity',
+    server: ob.server || ob.address,
+    port: Number(ob.server_port || ob.port || 443),
+    uuid: ob.uuid || ob.password || '',
+    password: ob.password || '',
+    'congestion-control': ob.congestion_control || 'bbr',
+    sni: ob.sni || ob.server_name || ob.server,
+    'skip-cert-verify': ob.allow_insecure ?? ob.insecure ?? true,
+    'client-fingerprint': 'chrome'
+  };
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+
+  try {
+    const auth = proxy.uuid && proxy.password ? `${proxy.uuid}:${encodeURIComponent(proxy.password)}@` : '';
+    const params = new URLSearchParams({
+      congestion_control: proxy['congestion-control'],
+      sni: proxy.sni,
+      allow_insecure: proxy['skip-cert-verify'] ? '1' : '0'
+    });
+    const link = `juicity://${auth}${proxy.server}:${proxy.port}?${params.toString()}#${proxy.sni || proxy.server}`;
+    base64Links.push(link);
+  } catch (e) {
+    console.warn('Juicity base64 生成失败:', e.message);
+  }
+}
+
+function processMieru(data, set, base64Links) {
+  const ob = data.outbounds?.[0] || data;
+  if (!ob?.server) return;
+  const proxy = {
+    type: 'mieru',
+    server: ob.server,
+    port: Number(ob.port || 443),
+    password: ob.password || ob.auth || '',
+    transport: ob.transport || 'tcp',
+    sni: ob.sni || ob.server,
+    'skip-cert-verify': true
+  };
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+}
+
+function processNaiveproxy(data, set, base64Links) {
+  const ob = data.outbounds?.[0] || data;
+  if (!ob) return;
+  const proxy = {
+    type: 'naive',
+    server: ob.server || '',
+    port: Number(ob.port || 443),
+    username: ob.username || '',
+    password: ob.password || '',
+    'skip-cert-verify': true
+  };
+  if (!proxy.server && ob.proxy) {
+    try {
+      const url = new URL(ob.proxy.startsWith('https://') ? ob.proxy : 'https://' + ob.proxy);
+      proxy.server = url.hostname;
+      proxy.port = Number(url.port) || 443;
+      proxy.username = url.username;
+      proxy.password = url.password;
+    } catch (e) {}
+  }
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+}
+
+function processShadowquic(data, set, base64Links) {
+  const ob = data.outbounds?.[0] || data;
+  if (!ob?.server) return;
+  const proxy = {
+    type: 'shadowquic',
+    server: ob.server,
+    port: Number(ob.port || 443),
+    password: ob.password || ob.auth_str || '',
+    method: ob.method || 'chacha20-ietf-poly1305',
+    sni: ob.sni || ob.server_name || ob.server,
+    'skip-cert-verify': true
+  };
+  set.add(JSON.stringify(normalizeProxy(proxy)));
+}
+
+// ======================== 主更新函数 ========================
+async function updateSubscription() {
+  console.log('🔄 开始更新节点缓存...');
+  const sites = loadSources();
+
+  const uniqueSet = new Set();
+  const base64Links = [];
+
+  for (const site of sites) {
+    try {
+      console.log(`🌐 抓取 [${site.type.toUpperCase()}] ${site.url}`);
+      const res = await axios.get(site.url, { timeout: 25000, responseType: 'text' });
+
+      let data;
+      if (site.type === 'clash') {
+        data = yaml.load(res.data);
+      } else {
+        data = JSON.parse(res.data);
+      }
+
+      switch (site.type) {
+        case 'hysteria': processHysteria(data, uniqueSet, base64Links); break;
+        case 'hysteria2': processHysteria2(data, uniqueSet, base64Links); break;
+        case 'xray': processXray(data, uniqueSet, base64Links); break;
+        case 'singbox': processSingbox(data, uniqueSet, base64Links); break;
+        case 'clash': processClash(data, uniqueSet, base64Links); break;
+        case 'juicity': processJuicity(data, uniqueSet, base64Links); break;
+        case 'mieru': processMieru(data, uniqueSet, base64Links); break;
+        case 'naiveproxy': processNaiveproxy(data, uniqueSet, base64Links); break;
+        case 'shadowquic': processShadowquic(data, uniqueSet, base64Links); break;
+      }
+    } catch (e) {
+      console.warn(`⏭️ 抓取失败 [${site.type}] ${site.url} → ${e.message}`);
+    }
+  }
+
+  console.log(`✅ 共获取 ${uniqueSet.size} 个唯一节点`);
+
+  // 生成 Clash 配置
+  const proxyObjects = [];
+  const proxyNames = [];
+
+  const FLAG_EMOJI = {
+    US: '🇺🇸', CA: '🇨🇦', GB: '🇬🇧', JP: '🇯🇵', KR: '🇰🇷', SG: '🇸🇬',
+    HK: '🇭🇰', TW: '🇹🇼', DE: '🇩🇪', FR: '🇫🇷', NL: '🇳🇱', RU: '🇷🇺',
+    LAN: '🏠', '??': '❓'
+  };
+
+  for (const str of uniqueSet) {
+    const obj = JSON.parse(str);
+    const isIPv6 = obj.server && obj.server.includes(':') && !obj.server.match(/^\d+\.\d+\.\d+\.\d+$/);
+    const country = await getCountryCode(obj.server);
+    const flag = FLAG_EMOJI[country] || '🌐';
+    let name = `${flag} ${country} · ${obj.server || '未知'}`;
+    if (isIPv6) name = `${flag} ${country} · [${obj.server}]`;
+    if (obj.portRange) name += ` :${obj.portRange}`;
+    if (obj.sni && obj.sni !== obj.server) name += ` (${obj.sni})`;
+
+    obj.name = name.trim();
+    proxyObjects.push(obj);
+    proxyNames.push(obj.name);
+  }
+
+  const clashConfig = {
+    'mixed-port': 7890,
+    'allow-lan': true,
+    mode: 'rule',
+    'log-level': 'info',
+    'unified-delay': true,
+    ipv6: true,
+    dns: {
+      enable: true,
+      listen: ':53',
+      ipv6: true,
+      'enhanced-mode': 'fake-ip',
+      'fake-ip-range': '198.18.0.1/16',
+      'default-nameserver': ['223.5.5.5', '8.8.8.8'],
+      nameserver: ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query'],
+      fallback: ['https://1.1.1.1/dns-query', 'tls://dns.google'],
+      'fallback-filter': { geoip: true, 'geoip-code': 'CN', ipcidr: ['240.0.0.0/4'] }
+    },
+    proxies: proxyObjects,
+    'proxy-groups': [
+      { name: '节点选择', type: 'select', proxies: ['自动选择', 'DIRECT', ...proxyNames] },
+      { name: '自动选择', type: 'url-test', url: 'http://www.gstatic.com/generate_204', interval: 300, tolerance: 100, proxies: proxyNames }
+    ],
+    rules: [
+      'DOMAIN,clash.razord.top,DIRECT',
+      'DOMAIN,yacd.haishan.me,DIRECT',
+      'GEOIP,LAN,DIRECT',
+      'GEOIP,CN,DIRECT',
+      'MATCH,节点选择'
+    ]
+  };
+
+  const yamlContent = yaml.dump(clashConfig, { lineWidth: -1, noRefs: true, sortKeys: false });
+  fs.writeFileSync('./clash.yaml', yamlContent);
+
+  if (base64Links.length > 0) {
+    const base64 = Buffer.from(base64Links.join('\n')).toString('base64');
+    fs.writeFileSync('./sub.base64', base64);
+    console.log(`📦 Base64 订阅生成: ${base64Links.length} 条`);
+  }
+
+  console.log('🚀 Clash YAML 更新完成');
+}
+
+// ======================== Git 推送 ========================
+function gitPush() {
+  if (!ensureGitRepo()) return;
+
+  try {
+    const message = `${config.github.commitMessagePrefix} ${new Date().toLocaleString('zh-CN')}`;
+    execSync('git add clash.yaml sub.base64', { stdio: 'inherit' });
+    execSync(`git commit -m "${message}"`, { stdio: 'inherit' });
+    execSync('git push -u origin main', { stdio: 'inherit' });
+    console.log('✅ 已成功推送到 GitHub');
+  } catch (e) {
+    if (e.message.includes('nothing to commit')) {
+      console.log('⚠️ 没有新节点变更，无需提交');
+    } else {
+      console.log('⚠️ Git 推送失败（可能需要首次手动 push 或检查网络）');
+    }
+  }
+}
+
+// ======================== 执行入口 ========================
+async function main() {
+  await updateSubscription();
+  gitPush();
+}
+
+main().catch(console.error);
