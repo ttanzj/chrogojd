@@ -97,6 +97,19 @@ proxies:
     client-fingerprint: chrome
     name: 🇫🇷 FR · [2001:bc8:32d7:302::11] :20088 (apple.com)
   - type: hysteria2
+    server: 62.210.10.108
+    port: 22000
+    password: dongtaiwang.com
+    fast-open: true
+    sni: www.microsoft.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    portRange: '22000'
+    ports: '22000'
+    client-fingerprint: chrome
+    name: 🇫🇷 FR · 62.210.10.108 :22000 (www.microsoft.com)
+  - type: hysteria2
     server: 157.254.223.43
     port: 27921
     password: dongtaiwang.com
@@ -468,6 +481,7 @@ proxy-groups:
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::8] :22000 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::11] :20088 (apple.com)
+      - 🇫🇷 FR · 62.210.10.108 :22000 (www.microsoft.com)
       - 🇺🇸 US · 157.254.223.43 :27921,28000-29000 (www.bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::13]
@@ -503,6 +517,7 @@ proxy-groups:
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::8] :22000 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::11] :20088 (apple.com)
+      - 🇫🇷 FR · 62.210.10.108 :22000 (www.microsoft.com)
       - 🇺🇸 US · 157.254.223.43 :27921,28000-29000 (www.bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::13]
