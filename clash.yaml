@@ -297,6 +297,20 @@ proxies:
     client-fingerprint: chrome
     name: 🇺🇸 US · 45.150.65.154 (bing.com)
   - type: hysteria
+    server: 195.154.44.227
+    port: 55668
+    auth_str: github.com/Alvin9999-newpac/fanqiang
+    up: 20
+    down: 20
+    fast-open: true
+    protocol: udp
+    sni: bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    client-fingerprint: chrome
+    name: 🇫🇷 FR · 195.154.44.227 (bing.com)
+  - type: hysteria
     server: 2001:bc8:32d7:17b::2
     port: 11000
     auth-str: dongtaiwang.com
@@ -453,6 +467,7 @@ proxy-groups:
       - 🇫🇷 FR · [2001:bc8:32d7:302::14]
       - 🇩🇪 DE · 5.83.129.90 (bing.com)
       - 🇺🇸 US · 45.150.65.154 (bing.com)
+      - 🇫🇷 FR · 195.154.44.227 (bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::2] (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::16] (bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::17] (apple.com)
@@ -487,6 +502,7 @@ proxy-groups:
       - 🇫🇷 FR · [2001:bc8:32d7:302::14]
       - 🇩🇪 DE · 5.83.129.90 (bing.com)
       - 🇺🇸 US · 45.150.65.154 (bing.com)
+      - 🇫🇷 FR · 195.154.44.227 (bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::2] (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::16] (bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::17] (apple.com)
