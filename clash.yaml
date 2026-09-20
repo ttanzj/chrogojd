@@ -97,32 +97,6 @@ proxies:
     client-fingerprint: chrome
     name: 🇫🇷 FR · [2001:bc8:32d7:302::11] :20088 (apple.com)
   - type: hysteria2
-    server: 62.210.7.139
-    port: 60111
-    password: github.com/Alvin9999-newpac/fanqiang
-    fast-open: true
-    sni: bing.com
-    skip-cert-verify: true
-    alpn:
-      - h3
-    portRange: '60111'
-    ports: '60111'
-    client-fingerprint: chrome
-    name: 🇫🇷 FR · 62.210.7.139 :60111 (bing.com)
-  - type: hysteria2
-    server: 62.210.147.2
-    port: 43115
-    password: github.com/Alvin9999-newpac/fanqiang
-    fast-open: true
-    sni: www.microsoft.com
-    skip-cert-verify: true
-    alpn:
-      - h3
-    portRange: '43115'
-    ports: '43115'
-    client-fingerprint: chrome
-    name: 🇫🇷 FR · 62.210.147.2 :43115 (www.microsoft.com)
-  - type: hysteria2
     server: 2001:bc8:32d7:17b::3
     port: 22000
     password: dongtaiwang.com
@@ -408,15 +382,15 @@ proxies:
     down: 55 Mbps
     name: 🇩🇪 DE · [2a14:7584:d099::a] (apple.com)
   - type: juicity
-    server: fan.193919.xyz:45889
+    server: fan.193919.xyz:22001
     port: 443
-    uuid: abbf6900-2bfb-4019-89e4-4875e831cea8
-    password: dongtaiwang.com
+    uuid: b5ed1193-4ae4-25a1-9a91-15bfc5dc728c
+    password: github.com/Alvin9999-newpac/fanqiang
     congestion-control: bbr
     sni: fan.193919.xyz
     skip-cert-verify: true
     client-fingerprint: chrome
-    name: ❓ ?? · [fan.193919.xyz:45889] (fan.193919.xyz)
+    name: ❓ ?? · [fan.193919.xyz:22001] (fan.193919.xyz)
   - type: juicity
     server: 142.249.37.83:22222
     port: 443
@@ -429,13 +403,13 @@ proxies:
     name: ❓ ?? · [142.249.37.83:22222] (www.bing.com)
   - type: naive
     server: fan.193919.xyz
-    port: 44000
+    port: 23001
     username: dongtaiwang.com
     password: dongtaiwang.com
     skip-cert-verify: true
     sni: fan.193919.xyz
     client-fingerprint: chrome
-    name: 🇹🇼 TW · fan.193919.xyz
+    name: 🇨🇦 CA · fan.193919.xyz
   - type: naive
     server: hk.336892.xyz
     port: 33550
@@ -456,8 +430,6 @@ proxy-groups:
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::8] :22000 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::11] :20088 (apple.com)
-      - 🇫🇷 FR · 62.210.7.139 :60111 (bing.com)
-      - 🇫🇷 FR · 62.210.147.2 :43115 (www.microsoft.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::13]
       - 🇨🇦 CA · 104.21.238.35
@@ -476,9 +448,9 @@ proxy-groups:
       - 🇩🇪 DE · [2a14:7584:d097::a] (apple.com)
       - 🇩🇪 DE · 5.83.129.143 (apple.com)
       - 🇩🇪 DE · [2a14:7584:d099::a] (apple.com)
-      - ❓ ?? · [fan.193919.xyz:45889] (fan.193919.xyz)
+      - ❓ ?? · [fan.193919.xyz:22001] (fan.193919.xyz)
       - ❓ ?? · [142.249.37.83:22222] (www.bing.com)
-      - 🇹🇼 TW · fan.193919.xyz
+      - 🇨🇦 CA · fan.193919.xyz
       - 🇺🇸 US · hk.336892.xyz
   - name: 自动选择
     type: url-test
@@ -491,8 +463,6 @@ proxy-groups:
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::8] :22000 (apple.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::11] :20088 (apple.com)
-      - 🇫🇷 FR · 62.210.7.139 :60111 (bing.com)
-      - 🇫🇷 FR · 62.210.147.2 :43115 (www.microsoft.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
       - 🇫🇷 FR · [2001:bc8:32d7:302::13]
       - 🇨🇦 CA · 104.21.238.35
@@ -511,9 +481,9 @@ proxy-groups:
       - 🇩🇪 DE · [2a14:7584:d097::a] (apple.com)
       - 🇩🇪 DE · 5.83.129.143 (apple.com)
       - 🇩🇪 DE · [2a14:7584:d099::a] (apple.com)
-      - ❓ ?? · [fan.193919.xyz:45889] (fan.193919.xyz)
+      - ❓ ?? · [fan.193919.xyz:22001] (fan.193919.xyz)
       - ❓ ?? · [142.249.37.83:22222] (www.bing.com)
-      - 🇹🇼 TW · fan.193919.xyz
+      - 🇨🇦 CA · fan.193919.xyz
       - 🇺🇸 US · hk.336892.xyz
 rules:
   - DOMAIN,clash.razord.top,DIRECT
