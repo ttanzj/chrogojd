@@ -48,29 +48,6 @@ proxies:
       short-id: 21569dd6
     sni: 2001:bc8:32d7:302::14
     name: 🇫🇷 FR · [2001:bc8:32d7:302::14]
-  - type: vless
-    server: 62.210.70.194
-    port: 37783
-    uuid: a289c660-1b12-432b-a06c-c2ae469272b0
-    network: httpupgrade
-    tls: true
-    skip-cert-verify: true
-    client-fingerprint: chrome
-    servername: www.yahoo.com
-    udp: true
-    alpn:
-      - h3
-      - http/1.1
-    packet_encoding: xudp
-    httpupgrade-opts:
-      path: /OCrp5Ajs
-      host: www.yahoo.com
-    encryption: mlkem768x25519plus.native.0rtt.I5ge5qOTUhKE8xpufKI84yktvqqG9qkViwYe20uFZUyGwbnK7QMv6Tih0subInSmZTyem1QFG1CDFvGfgMBu3Yw1ryNJfGjMnALAqZawBoukaROcTzxXmFAzuejDalyhxxfNJkeUefW3biOHIzcu_AairYSvJ8l_iHJpKVEKXZWPQWiq-tm_nPJz_oDDhFElaCHKnCslodSen2M6afQQ0HYKc6nKZmZwc1cHG1GKW9xHx6CBfLhFVOhT62tCvbxShul1NJgL-shELnovAtS1aHBFQKDOIiJYC7Ww0awUfsyGIFhnJIhdnqFHnkG7sOcdiWiH-ZkQ11p065zAWEQ14HTOi-aqCAsnWNwdRxwj1_qlArYd3nNF1dXKARRikbMFutC5GyyvSJxk7XwHRGWoK_q6_zK2amtIrsin6tov5kKs3UqywFJMJ2rMtgYZXpvK_TdXumLGUimIq9vFW7idpbMlv9F84NY8UbtrkyB87IQwdKqbtnuOMzxkYik-i9N5vaKcXLSdOGRpMgAKSMt5NbSyllcEh6qUTZoVb_h8ZmYij8csvbGWxodCj1WvOGoRtGGnTSpWMdG3X3ZxXlhNQ6tpIPGTfxkzjPtRjHQDcqm0fgrLjWONnkGxMQRO-Wi50vzNPzW9Vuy5BlZszdGqpjLNRLGw24JTAYKXpxiUkTxUxhO3LRC8kMvGVBgxjImwmwev1IqfPiVIMSwhV0FAMNw27nALh0qyPnNLbFpbTFuTL6V83YypFDl1yahns_AE86ufKnSAaSs_0PwMM_ZDfkhE7nRKCygaD9UjWWygRWq6fZarZahcTAqrZUYPXWxqDsrE7VRYO3ch70AHi6ZXTyKR1YcyM0Kiw3S0kxpjbtWReOJ3lXwry-BjcusDKhRsAxErDIBD6IFuY5ucRTtpfPoNgiq7rSFG8SFNvTe-_wh39Bwjj3JeRnw6kzujiKgxGiAH9GYm6LVvG2ljdWacJjSyoDE6mbFwgRCGdDh4h6eMCPs7hjQmNByx76lb0PYt-BuD9xCfiEFMoKJzTjWUvOy1gbmOrjY5xtkkByo8PCS40YRqXiYQ0Me9U5t_lsdxrvO6f7ajFHBNp_IiQOAstWu9UKC2hiABnVWbHaTFeQSp0tAx9rm5vehC0_a3EAHByGzGFUQ-QWpUO5mvGzZKpPVQrgovg2GsgepxgOMymOgv2CbLNKiwAJJyjDe5d5yXiueH3ZdppJqepXrOGuGOn3e-8RKVu3I-nCp-aMS769Yl5mmS8BYOpxW3HseSzZZMIta4hjsa7hqSgmycflvLV5x-8bM9iBFZ7iOey9oYyEkEbFN-6-Alh2dQfopjE2QNFqW6KatBKHXKHNVoayoc4ZegDKPNAEnAo9wIHkBpDFC-fVoCkGMDcRSeNbF67keruuE0xfMA8ltaklEyRwMcxVQwMhILq6vKlzpJF9OJMGVg5amP_-i4NAsKEfC8Ayp61gByykoWKTWkuLAEAYtXXNIfQ9BPvZca1BITgpC69lapO4SH1UAZ4KRxOTVtbHES_GsjM_lkTv940p3IDkG7jfvxIfY_Q9C3QVbkilRpPvg
-    reality-opts:
-      public-key: tQeEamJmYVUUfjRLX7ETvMnPj4DrHzRhR5TI684oYgg
-      short-id: 21569dd6
-    sni: 62.210.70.194
-    name: 🇫🇷 FR · 62.210.70.194
   - type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -87,6 +64,18 @@ proxies:
     server: 62.210.70.191
     port: 23556
     auth-str: github.com/Alvin9999-newpac/fanqiang
+    sni: bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    protocol: udp
+    up: 11 Mbps
+    down: 55 Mbps
+    name: 🇫🇷 FR · 62.210.70.191 (bing.com)
+  - type: hysteria
+    server: 62.210.70.191
+    port: 24667
+    auth-str: dongtaiwang.com
     sni: bing.com
     skip-cert-verify: true
     alpn:
@@ -123,9 +112,9 @@ proxies:
     client-fingerprint: chrome
     name: 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
   - type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth_str: github.com/Alvin9999-newpac/fanqiang
+    server: 137.175.82.44
+    port: 443
+    auth_str: dongtaiwang.com
     up: 11
     down: 55
     fast-open: true
@@ -134,9 +123,24 @@ proxies:
     skip-cert-verify: true
     alpn:
       - h3
-    portRange: '23556'
+    portRange: '443'
     client-fingerprint: chrome
-    name: 🇫🇷 FR · 62.210.70.191 :23556 (bing.com)
+    name: 🇺🇸 US · 137.175.82.44 :443 (bing.com)
+  - type: hysteria
+    server: 107.149.207.185
+    port: 443
+    auth_str: dongtaiwang.com
+    up: 11
+    down: 55
+    fast-open: true
+    protocol: udp
+    sni: www.bing.com
+    skip-cert-verify: true
+    alpn:
+      - h3
+    portRange: '443'
+    client-fingerprint: chrome
+    name: 🇺🇸 US · 107.149.207.185 :443 (www.bing.com)
   - type: hysteria2
     server: 2001:bc8:32d7:17b::3
     port: 22000
@@ -151,15 +155,15 @@ proxies:
     client-fingerprint: chrome
     name: 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
   - type: juicity
-    server: fan.193919.xyz:22001
+    server: fan.193919.xyz:55443
     port: 443
-    uuid: b5ed1193-4ae4-25a1-9a91-15bfc5dc728c
-    password: github.com/Alvin9999-newpac/fanqiang
+    uuid: 61ff217d-59bc-43d2-8ac4-312e695a17dd
+    password: dongtaiwang.com
     congestion-control: bbr
     sni: fan.193919.xyz
     skip-cert-verify: true
     client-fingerprint: chrome
-    name: ❓ ?? · [fan.193919.xyz:22001] (fan.193919.xyz)
+    name: ❓ ?? · [fan.193919.xyz:55443] (fan.193919.xyz)
   - type: juicity
     server: 142.249.37.83:22222
     port: 443
@@ -172,7 +176,7 @@ proxies:
     name: ❓ ?? · [142.249.37.83:22222] (www.bing.com)
   - type: naive
     server: fan.193919.xyz
-    port: 23001
+    port: 33556
     username: dongtaiwang.com
     password: dongtaiwang.com
     skip-cert-verify: true
@@ -187,7 +191,7 @@ proxies:
     skip-cert-verify: true
     sni: hk.336892.xyz
     client-fingerprint: chrome
-    name: 🇨🇦 CA · hk.336892.xyz
+    name: ❓ ?? · hk.336892.xyz
   - type: hysteria
     server: 195.154.44.227
     port: 55668
@@ -209,17 +213,18 @@ proxy-groups:
       - 自动选择
       - DIRECT
       - 🇫🇷 FR · [2001:bc8:32d7:302::14]
-      - 🇫🇷 FR · 62.210.70.194
       - 🇩🇪 DE · [2a14:7584:d097::a] (apple.com)
+      - 🇫🇷 FR · 62.210.70.191 (bing.com)
       - 🇫🇷 FR · 62.210.70.191 (bing.com)
       - 🇫🇷 FR · 163.172.117.163 (bing.com)
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
-      - 🇫🇷 FR · 62.210.70.191 :23556 (bing.com)
+      - 🇺🇸 US · 137.175.82.44 :443 (bing.com)
+      - 🇺🇸 US · 107.149.207.185 :443 (www.bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
-      - ❓ ?? · [fan.193919.xyz:22001] (fan.193919.xyz)
+      - ❓ ?? · [fan.193919.xyz:55443] (fan.193919.xyz)
       - ❓ ?? · [142.249.37.83:22222] (www.bing.com)
       - 🇹🇼 TW · fan.193919.xyz
-      - 🇨🇦 CA · hk.336892.xyz
+      - ❓ ?? · hk.336892.xyz
       - 🇫🇷 FR · 195.154.44.227 (bing.com)
   - name: 自动选择
     type: url-test
@@ -228,17 +233,18 @@ proxy-groups:
     tolerance: 100
     proxies:
       - 🇫🇷 FR · [2001:bc8:32d7:302::14]
-      - 🇫🇷 FR · 62.210.70.194
       - 🇩🇪 DE · [2a14:7584:d097::a] (apple.com)
+      - 🇫🇷 FR · 62.210.70.191 (bing.com)
       - 🇫🇷 FR · 62.210.70.191 (bing.com)
       - 🇫🇷 FR · 163.172.117.163 (bing.com)
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
-      - 🇫🇷 FR · 62.210.70.191 :23556 (bing.com)
+      - 🇺🇸 US · 137.175.82.44 :443 (bing.com)
+      - 🇺🇸 US · 107.149.207.185 :443 (www.bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
-      - ❓ ?? · [fan.193919.xyz:22001] (fan.193919.xyz)
+      - ❓ ?? · [fan.193919.xyz:55443] (fan.193919.xyz)
       - ❓ ?? · [142.249.37.83:22222] (www.bing.com)
       - 🇹🇼 TW · fan.193919.xyz
-      - 🇨🇦 CA · hk.336892.xyz
+      - ❓ ?? · hk.336892.xyz
       - 🇫🇷 FR · 195.154.44.227 (bing.com)
 rules:
   - DOMAIN,clash.razord.top,DIRECT
