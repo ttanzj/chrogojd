@@ -126,21 +126,6 @@ proxies:
     portRange: '443'
     client-fingerprint: chrome
     name: 🇺🇸 US · 137.175.82.44 :443 (bing.com)
-  - type: hysteria
-    server: 107.149.207.185
-    port: 443
-    auth_str: dongtaiwang.com
-    up: 11
-    down: 55
-    fast-open: true
-    protocol: udp
-    sni: www.bing.com
-    skip-cert-verify: true
-    alpn:
-      - h3
-    portRange: '443'
-    client-fingerprint: chrome
-    name: 🇺🇸 US · 107.149.207.185 :443 (www.bing.com)
   - type: hysteria2
     server: 2001:bc8:32d7:17b::3
     port: 22000
@@ -165,15 +150,15 @@ proxies:
     client-fingerprint: chrome
     name: ❓ ?? · [fan.193919.xyz:55443] (fan.193919.xyz)
   - type: juicity
-    server: 142.249.37.83:22222
+    server: 142.249.37.83:33333
     port: 443
-    uuid: 4b230023-d64a-4231-b5ca-c38a4546a5d0
+    uuid: f5f56dba-feed-8d33-f7c7-a4a9be410a56
     password: dongtaiwang.com
     congestion-control: bbr
-    sni: www.bing.com
+    sni: bing.com
     skip-cert-verify: true
     client-fingerprint: chrome
-    name: ❓ ?? · [142.249.37.83:22222] (www.bing.com)
+    name: ❓ ?? · [142.249.37.83:33333] (bing.com)
   - type: naive
     server: fan.193919.xyz
     port: 33556
@@ -219,10 +204,9 @@ proxy-groups:
       - 🇫🇷 FR · 163.172.117.163 (bing.com)
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
       - 🇺🇸 US · 137.175.82.44 :443 (bing.com)
-      - 🇺🇸 US · 107.149.207.185 :443 (www.bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
       - ❓ ?? · [fan.193919.xyz:55443] (fan.193919.xyz)
-      - ❓ ?? · [142.249.37.83:22222] (www.bing.com)
+      - ❓ ?? · [142.249.37.83:33333] (bing.com)
       - 🇹🇼 TW · fan.193919.xyz
       - ❓ ?? · hk.336892.xyz
       - 🇫🇷 FR · 195.154.44.227 (bing.com)
@@ -239,10 +223,9 @@ proxy-groups:
       - 🇫🇷 FR · 163.172.117.163 (bing.com)
       - 🇩🇪 DE · 5.83.129.90 :54177 (apple.com)
       - 🇺🇸 US · 137.175.82.44 :443 (bing.com)
-      - 🇺🇸 US · 107.149.207.185 :443 (www.bing.com)
       - 🇫🇷 FR · [2001:bc8:32d7:17b::3] :22000 (www.microsoft.com)
       - ❓ ?? · [fan.193919.xyz:55443] (fan.193919.xyz)
-      - ❓ ?? · [142.249.37.83:22222] (www.bing.com)
+      - ❓ ?? · [142.249.37.83:33333] (bing.com)
       - 🇹🇼 TW · fan.193919.xyz
       - ❓ ?? · hk.336892.xyz
       - 🇫🇷 FR · 195.154.44.227 (bing.com)
